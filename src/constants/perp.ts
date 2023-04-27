@@ -27,6 +27,7 @@ export const ADDRESSES = {
             decimals: 5
         }
     ],
+    VAULT_MINT: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
     VAULT_SEED : 'market_vault',
     FEES_SEED : 'fee_model_config_acct',
     DERIVATIVE_SEED : 'derivative',

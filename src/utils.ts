@@ -1,6 +1,10 @@
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { ADDRESSES } from "./constants";
+import { TOKEN_PROGRAM_ID } from "@project-serum/anchor/dist/cjs/utils/token";
+import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
+import { struct, u8 } from '@solana/buffer-layout'
 
 export const getTrgAddress = async (
   wallet: NodeWallet,
@@ -110,4 +114,122 @@ export const convertBidsAsksOpenOrders = (
     bidReturn.filter((item) => item).reverse(),
     askReturn.filter((item) => item),
   ];
+};
+
+export const getUserAta = async (
+  walletKey: PublicKey,
+  vaultMint: PublicKey
+): Promise<PublicKey> => {
+  return (
+    await PublicKey.findProgramAddress(
+      [walletKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), vaultMint.toBuffer()],
+      ASSOCIATED_TOKEN_PROGRAM_ID
+    )
+  )[0];
+};
+
+export const getMpgVault = (
+  VAULT_SEED: string,
+  MPG_ID: PublicKey,
+  DEX_ID: PublicKey
+): PublicKey => {
+  return PublicKey.findProgramAddressSync(
+    [Buffer.from(VAULT_SEED), new PublicKey(MPG_ID).toBuffer()],
+    new PublicKey(DEX_ID)
+  )[0];
+};
+
+export const getRiskSigner = (
+  MPG_ID: PublicKey,
+  DEX_ID: PublicKey
+): PublicKey => {
+  const address = findProgramAddressSync(
+    [MPG_ID.toBuffer()],
+    new PublicKey(DEX_ID)
+  )[0];
+  return address;
+};
+
+export const getTraderFeeAcct = (
+  traderRiskGroup: PublicKey,
+  MPG_ID: PublicKey,
+  FEES_ID: PublicKey,
+  TRADER_FEE_ACCT_SEED: string
+): PublicKey => {
+  const address = findProgramAddressSync(
+    [
+      Buffer.from(TRADER_FEE_ACCT_SEED),
+      traderRiskGroup.toBuffer(),
+      MPG_ID.toBuffer(),
+    ],
+    FEES_ID
+  )[0];
+  return address;
+};
+
+function createFirstInstructionData() {
+  const aa = u8('instruction')
+  const dataLayout = struct([aa as any])
+
+  const data = Buffer.alloc(dataLayout.span)
+  dataLayout.encode(
+    {
+      instruction: 1
+    },
+    data
+  )
+
+  return data
+}
+
+export const initializeTraderFeeAcctIx = (args: any) => {
+  const keys = [
+    {
+      pubkey: args.payer,
+      isSigner: true,
+      isWritable: false
+    },
+    //{
+    //  pubkey: args.feeModelConfigAcct,
+    //  isSigner: false,
+    //  isWritable: false
+    //},
+    {
+      pubkey: args.traderFeeAcct,
+      isSigner: false,
+      isWritable: true
+    },
+    {
+      pubkey: args.MPG_ID,
+      isSigner: false,
+      isWritable: false
+    },
+    {
+      pubkey: args.traderRiskGroup,
+      isSigner: false,
+      isWritable: false
+    },
+    {
+      pubkey: SystemProgram.programId,
+      isSigner: false,
+      isWritable: false
+    }
+  ]
+  return new TransactionInstruction({
+    keys,
+    programId: args.FEES_ID,
+    data: createFirstInstructionData()
+  })
+}
+
+export const getFeeModelConfigAcct = (
+  MPG_ID: PublicKey,
+  FEES_ID: PublicKey,
+  FEES_SEED: string
+): PublicKey => {
+  const address = findProgramAddressSync(
+    [Buffer.from(FEES_SEED), MPG_ID.toBuffer()],
+    FEES_ID
+  )[0];
+  return address;
 };

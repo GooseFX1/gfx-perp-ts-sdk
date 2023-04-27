@@ -134,4 +134,9 @@ export class Product extends Perp {
       asks: finalData[1],
     };
   }
+
+  subscribeToOrderbook(subscribeFn: any){
+    const id = this.connection.onAccountChange(this.EVENT_QUEUE, subscribeFn)
+    return id
+  }
 }
