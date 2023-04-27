@@ -1,11 +1,12 @@
-import { Connection, Keypair } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { MarketProductGroup } from "../layout";
 import { AnchorProvider, Program, Wallet } from "@project-serum/anchor";
 import dexIdl from "../idl/dex.json";
-import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { ADDRESSES } from "../constants";
 
 export type NetworkType = "devnet" | "mainnet";
+export type TradeSide = "buy" | "sell"
+export type OrderType = 'limit' | 'market' | 'immediateOrCancel' | 'postOnly'
 
 export class Perp {
   marketProductGroup: MarketProductGroup;

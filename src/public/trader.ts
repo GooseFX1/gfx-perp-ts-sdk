@@ -4,18 +4,23 @@ import { Fractional } from "../types";
 import {
   getFeeModelConfigAcct,
   getMpgVault,
+  getOrderTypeEnum,
+  getRiskAndFeeSigner,
   getRiskSigner,
+  getTradeSideEnum,
   getTraderFeeAcct,
   getTrgAddress,
   getUserAta,
   initializeTraderFeeAcctIx,
 } from "../utils";
-import { Perp } from "./base";
+import { Perp, TradeSide, OrderType } from "./base";
 import { ADDRESSES } from "../constants";
 import {
   TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
+import { BN } from "bn.js";
+import { Product } from "./product";
 
 export class Trader extends Perp {
   traderRiskGroup: TraderRiskGroup | null;
@@ -32,7 +37,23 @@ export class Trader extends Perp {
     );
   }
 
-  async createTraderAccountIxs(): Promise<[TransactionInstruction[], Keypair[]]> {
+  async getOpenOrders(product: Product) {
+    if (!this.trgKey)
+      throw new Error(
+        "Trader account not initialised! If you have already created a Trader account, run init(). If not, run createTraderAccountIxs() to create the Trader account!"
+      );
+    const orderbookL3 = await product.getOrderbookL3();
+    const filteredBids = orderbookL3.bids.filter(item => item.user === this.trgKey.toBase58())
+    const filteredAsks = orderbookL3.asks.filter(item => item.user === this.trgKey.toBase58())
+    return {
+      bids: filteredBids,
+      asks: filteredAsks
+    }
+  }
+
+  async createTraderAccountIxs(): Promise<
+    [TransactionInstruction[], Keypair[]]
+  > {
     const trgAddress = await getTrgAddress(this.wallet, this.connection);
     if (trgAddress) throw new Error("Trader already exists with this wallet!");
     const ixs = [];
@@ -107,7 +128,7 @@ export class Trader extends Perp {
         .signers([])
         .instruction()
     );
-    return [ixs, [initTrgAddress, riskStateAccount]]
+    return [ixs, [initTrgAddress, riskStateAccount]];
   }
 
   async init() {
@@ -191,6 +212,95 @@ export class Trader extends Perp {
     return await this.program.methods
       .withdrawFunds(params)
       .accounts(accounts)
+      .signers([])
+      .instruction();
+  }
+
+  async newOrderIx(
+    qty: Fractional,
+    price: Fractional,
+    side: TradeSide,
+    matchLimit: number,
+    orderType: OrderType,
+    product: Product
+  ) {
+    const orderParam = {
+      maxBaseQty: qty,
+      side: getTradeSideEnum(side),
+      selfTradeBehavior: {
+        decrementTake: {},
+      },
+      matchLimit: new BN(matchLimit),
+      orderType: getOrderTypeEnum(orderType),
+      limitPrice: price,
+    };
+
+    const orderAccounts = {
+      user: this.wallet.publicKey,
+      traderRiskGroup: this.trgKey,
+      marketProductGroup: this.traderRiskGroup?.marketProductGroup,
+      product: product.PRODUCT_ID,
+      aaobProgram: ADDRESSES.MAINNET.ORDERBOOK_P_ID,
+      orderbook: product.ORDERBOOK_ID,
+      marketSigner: product.marketSigner,
+      eventQueue: product.EVENT_QUEUE,
+      bids: product.BIDS,
+      asks: product.ASKS,
+      systemProgram: SystemProgram.programId,
+      feeModelProgram: ADDRESSES.MAINNET.FEES_ID,
+      feeModelConfigurationAcct:
+        this.marketProductGroup.feeModelConfigurationAcct,
+      traderFeeStateAcct: this.traderRiskGroup?.feeStateAccount,
+      feeOutputRegister: this.marketProductGroup.feeOutputRegister,
+      riskEngineProgram: ADDRESSES.MAINNET.RISK_ID,
+      riskModelConfigurationAcct:
+        this.marketProductGroup.riskModelConfigurationAcct,
+      riskOutputRegister: this.marketProductGroup.riskOutputRegister,
+      traderRiskStateAcct: this.traderRiskGroup?.riskStateAccount,
+      riskAndFeeSigner: getRiskAndFeeSigner(
+        ADDRESSES.MAINNET.MPG_ID,
+        ADDRESSES.MAINNET.DEX_ID
+      ),
+    };
+
+    return await this.program.methods
+      .newOrder(orderParam)
+      .accounts(orderAccounts)
+      .signers([])
+      .instruction();
+  }
+
+  async cancelOrderIx(orderId: string, product: Product) {
+    const orderParam = {
+      orderId: new BN(orderId),
+    };
+
+    const orderAccounts = {
+      user: this.wallet.publicKey,
+      traderRiskGroup: this.trgKey,
+      marketProductGroup: this.traderRiskGroup?.marketProductGroup,
+      product: product.PRODUCT_ID,
+      aaobProgram: ADDRESSES.MAINNET.ORDERBOOK_P_ID,
+      orderbook: product.ORDERBOOK_ID,
+      marketSigner: product.marketSigner,
+      eventQueue: product.EVENT_QUEUE,
+      bids: product.BIDS,
+      asks: product.ASKS,
+      systemProgram: SystemProgram.programId,
+      riskEngineProgram: ADDRESSES.MAINNET.RISK_ID,
+      riskModelConfigurationAcct:
+        this.marketProductGroup.riskModelConfigurationAcct,
+      riskOutputRegister: this.marketProductGroup.riskOutputRegister,
+      traderRiskStateAcct: this.traderRiskGroup?.riskStateAccount,
+      riskSigner: getRiskAndFeeSigner(
+        ADDRESSES.MAINNET.MPG_ID,
+        ADDRESSES.MAINNET.DEX_ID
+      ),
+    };
+
+    return await this.program.methods
+      .cancelOrder(orderParam)
+      .accounts(orderAccounts)
       .signers([])
       .instruction();
   }

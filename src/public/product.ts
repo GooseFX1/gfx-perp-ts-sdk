@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Perp } from "./base";
 import { ADDRESSES } from "../constants";
 import { Slab } from "./orderbook/Agnostic";
-import { convertBidsAsks, convertBidsAsksOpenOrders } from "../utils";
+import { convertBidsAsks, convertBidsAsksOpenOrders, getMarketSigner } from "../utils";
 
 export class Product extends Perp {
   name: string;
@@ -12,6 +12,7 @@ export class Product extends Perp {
   BIDS: PublicKey;
   ASKS: PublicKey;
   EVENT_QUEUE: PublicKey;
+  marketSigner: PublicKey;
   tick_size: number;
   decimals: number;
 
@@ -39,6 +40,7 @@ export class Product extends Perp {
     this.EVENT_QUEUE = selectedProduct.EVENT_QUEUE;
     this.tick_size = selectedProduct.tick_size;
     this.decimals = selectedProduct.decimals;
+    this.marketSigner = getMarketSigner(selectedProduct.PRODUCT_ID, ADDRESSES.MAINNET.DEX_ID)
   }
 
   initByName(name: string) {

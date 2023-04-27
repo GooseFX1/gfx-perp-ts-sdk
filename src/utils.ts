@@ -5,6 +5,7 @@ import { TOKEN_PROGRAM_ID } from "@project-serum/anchor/dist/cjs/utils/token";
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 import { struct, u8 } from '@solana/buffer-layout'
+import { TradeSide, OrderType } from "./public";
 
 export const getTrgAddress = async (
   wallet: NodeWallet,
@@ -233,3 +234,31 @@ export const getFeeModelConfigAcct = (
   )[0];
   return address;
 };
+
+export const getTradeSideEnum = (tradeSide: TradeSide) => {
+  if (tradeSide === 'buy')
+    return {bid: {}}
+  else if (tradeSide === 'sell')
+    return {ask: {}}
+}
+
+export const getOrderTypeEnum = (orderType: OrderType) => {
+  if (orderType === "limit") return { limit: {} };
+  else if (orderType === "market") return { market: {} };
+  else if (orderType === "immediateOrCancel") return { ioc: {} };
+  else if (orderType === "postOnly") return { postOnly: {} };
+};
+
+export const getMarketSigner = (product: PublicKey, DEX_ID: PublicKey): PublicKey => {
+  const address = PublicKey.findProgramAddressSync(
+    [product.toBuffer()],
+    DEX_ID
+  )
+  return address[0]
+}
+
+export const getRiskAndFeeSigner = (
+  marketProductGroup: PublicKey,
+  DEX_ID: PublicKey
+): PublicKey =>
+  PublicKey.findProgramAddressSync([marketProductGroup.toBuffer()], DEX_ID)[0];
