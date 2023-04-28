@@ -1,6 +1,6 @@
 {
   "name": "gfx-perp-sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,7 +8,7 @@
     "prepare": "npm run build",
     "build": "tsc -p src"
   },
-  "keywords": [],
+  "keywords": ["GooseFX", "Perpetual Futures", "Perps", "Perps SDK"],
   "author": "",
   "license": "ISC",
   "devDependencies": {

@@ -95,7 +95,9 @@
     await trader.init();
   ```
 
-
+## Fractional Datatype
+The Fractional data type uses a simple formula to represent a fractional number based on its mantissa (m) and exponent (exp):
+`number = mantissa / (10 ^ exponent)`
 
 ## Trader Instructions
 
