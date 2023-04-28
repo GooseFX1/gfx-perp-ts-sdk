@@ -230,9 +230,9 @@ export class Trader extends Perp {
     qty: Fractional,
     price: Fractional,
     side: TradeSide,
-    matchLimit: number,
     orderType: OrderType,
-    product: Product
+    product: Product,
+    matchLimit?: number,
   ) {
     const orderParam = {
       maxBaseQty: qty,
@@ -240,7 +240,7 @@ export class Trader extends Perp {
       selfTradeBehavior: {
         decrementTake: {},
       },
-      matchLimit: new BN(matchLimit),
+      matchLimit: new BN(matchLimit ? matchLimit : 10),
       orderType: getOrderTypeEnum(orderType),
       limitPrice: price,
     };
