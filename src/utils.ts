@@ -1,6 +1,5 @@
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
 import { Connection, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
-import { ADDRESSES } from "./constants";
 import { TOKEN_PROGRAM_ID } from "@project-serum/anchor/dist/cjs/utils/token";
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
@@ -9,10 +8,12 @@ import { TradeSide, OrderType } from "./public";
 
 export const getTrgAddress = async (
   wallet: NodeWallet,
-  connection: Connection
+  connection: Connection,
+  DEX_ID: PublicKey,
+  MPG_ID: PublicKey
 ): Promise<PublicKey | null> => {
   const response = await connection.getParsedProgramAccounts(
-    ADDRESSES.MAINNET.DEX_ID,
+    DEX_ID,
     {
       filters: [
         //  {
@@ -29,7 +30,7 @@ export const getTrgAddress = async (
           memcmp: {
             offset: 16,
             /** data to match, a base-58 encoded string and limited to less than 129 bytes */
-            bytes: ADDRESSES.MAINNET.MPG_ID.toBase58(),
+            bytes: MPG_ID.toBase58(),
           },
         },
       ],

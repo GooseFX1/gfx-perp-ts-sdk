@@ -10,9 +10,6 @@ export const ADDRESSES = {
     FEES_ID : new PublicKey('2o2VABUDicRrLSzb5U4VvBrnVbtnDdCMowrMg9x7RGnD'),
     RISK_ID : new PublicKey('GW31SEFBLtoEhBYFJi2KUdmdnBG4xapjE7ARBWB5MQT2'),
     ORDERBOOK_P_ID : new PublicKey('Cet4WZvLjJJFfPCfFsGjH8aHHCLgoUWWYXXunf28eAFT'),
-    RISK_OUTPUT_REGISTER: new PublicKey("9zRkDHGTY8XLYEggqvUvQzD68rvCW58Ptg7YMd2jh1BT"),
-    FEE_OUTPUT_REGISTER: new PublicKey("8xuXKsUm5p4xg3T84Ys4s82BftnRwPQhxbSyBddZYc5E") ,
-    RISK_MODEL_CONFIG_ACCT : new PublicKey('D2MXQcScXcfQYkvmg1UgUdN3yFSjyz5GCV9FJkd7NChC'),
     PYTH_MAINNET : new PublicKey('H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG'),
     PYTH_DEVNET : new PublicKey('J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix'),
     PRODUCTS: [
@@ -30,7 +27,6 @@ export const ADDRESSES = {
     VAULT_MINT: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
     VAULT_SEED : 'market_vault',
     FEES_SEED : 'fee_model_config_acct',
-    DERIVATIVE_SEED : 'derivative',
     TRADER_FEE_ACCT_SEED : 'trader_fee_acct',
   },
   DEVNET: {
@@ -40,9 +36,6 @@ export const ADDRESSES = {
     FEES_ID : new PublicKey('2o2VABUDicRrLSzb5U4VvBrnVbtnDdCMowrMg9x7RGnD'),
     RISK_ID : new PublicKey('GW31SEFBLtoEhBYFJi2KUdmdnBG4xapjE7ARBWB5MQT2'),
     ORDERBOOK_P_ID : new PublicKey('Cet4WZvLjJJFfPCfFsGjH8aHHCLgoUWWYXXunf28eAFT'),
-    RISK_OUTPUT_REGISTER: new PublicKey("9zRkDHGTY8XLYEggqvUvQzD68rvCW58Ptg7YMd2jh1BT"),
-    FEE_OUTPUT_REGISTER: new PublicKey("8xuXKsUm5p4xg3T84Ys4s82BftnRwPQhxbSyBddZYc5E") ,
-    RISK_MODEL_CONFIG_ACCT : new PublicKey('D2MXQcScXcfQYkvmg1UgUdN3yFSjyz5GCV9FJkd7NChC'),
     PYTH_MAINNET : new PublicKey('H6ARHf6YXhGYeQfUzQNGk6rDNnLBQKrenN712K4AQJEG'),
     PYTH_DEVNET : new PublicKey('J83w4HKfqxwcq3BEMMkPFSppX3gqekLyLJBexebFVkix'),
     PRODUCTS: [
@@ -57,9 +50,9 @@ export const ADDRESSES = {
             decimals: 5
         }
     ],
+    VAULT_MINT: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
     VAULT_SEED : 'market_vault',
     FEES_SEED : 'fee_model_config_acct',
-    DERIVATIVE_SEED : 'derivative',
     TRADER_FEE_ACCT_SEED : 'trader_fee_acct',
   }
 };

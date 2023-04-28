@@ -1,7 +1,6 @@
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { Perp } from "./base";
-import { ADDRESSES } from "../constants";
 import { Slab } from "./orderbook/Agnostic";
 import { convertBidsAsks, convertBidsAsksOpenOrders, getMarketSigner } from "../utils";
 
@@ -27,8 +26,7 @@ export class Product extends Perp {
 
   initByIndex(index: number) {
     let products = null;
-    products =
-      this.networkType === "mainnet" ? ADDRESSES.MAINNET : ADDRESSES.DEVNET;
+    products = this.ADDRESSES
     if (index > products.PRODUCTS.length - 1)
       throw new Error("Index out of bounds");
     const selectedProduct = products.PRODUCTS[index];
@@ -40,13 +38,12 @@ export class Product extends Perp {
     this.EVENT_QUEUE = selectedProduct.EVENT_QUEUE;
     this.tick_size = selectedProduct.tick_size;
     this.decimals = selectedProduct.decimals;
-    this.marketSigner = getMarketSigner(selectedProduct.PRODUCT_ID, ADDRESSES.MAINNET.DEX_ID)
+    this.marketSigner = getMarketSigner(selectedProduct.PRODUCT_ID, this.ADDRESSES.DEX_ID)
   }
 
   initByName(name: string) {
     let products = null;
-    products =
-      this.networkType === "mainnet" ? ADDRESSES.MAINNET : ADDRESSES.DEVNET;
+    products = this.ADDRESSES;
     products = products.PRODUCTS.filter((product) => product.name === name);
     if (!products.length) throw new Error("No Such product");
     const selectedProduct = products[0];

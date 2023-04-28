@@ -24,7 +24,7 @@ xtest('Test initialization', async () => {
   expect(perpObj.marketProductGroup).not.toBeUndefined()
 })
 
-xtest('Test orderbook L2', async () => {
+xtest('Test get orderbook L2', async () => {
   const perpObj = new Perp(connection, 'mainnet', wall)
   await perpObj.init()
   const product = new Product(perpObj)
@@ -34,7 +34,7 @@ xtest('Test orderbook L2', async () => {
   expect(orderbook.asks.length).toBeGreaterThanOrEqual(0)
 })
 
-xtest('Test orderbook L3', async () => {
+xtest('Test get orderbook L3', async () => {
   const perpObj = new Perp(connection, 'mainnet', wall)
   await perpObj.init()
   const product = new Product(perpObj)

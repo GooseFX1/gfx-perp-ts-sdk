@@ -14,7 +14,6 @@ import {
   initializeTraderFeeAcctIx,
 } from "../utils";
 import { Perp, TradeSide, OrderType } from "./base";
-import { ADDRESSES } from "../constants";
 import {
   TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
@@ -43,18 +42,27 @@ export class Trader extends Perp {
         "Trader account not initialised! If you have already created a Trader account, run init(). If not, run createTraderAccountIxs() to create the Trader account!"
       );
     const orderbookL3 = await product.getOrderbookL3();
-    const filteredBids = orderbookL3.bids.filter(item => item.user === this.trgKey.toBase58())
-    const filteredAsks = orderbookL3.asks.filter(item => item.user === this.trgKey.toBase58())
+    const filteredBids = orderbookL3.bids.filter(
+      (item) => item.user === this.trgKey.toBase58()
+    );
+    const filteredAsks = orderbookL3.asks.filter(
+      (item) => item.user === this.trgKey.toBase58()
+    );
     return {
       bids: filteredBids,
-      asks: filteredAsks
-    }
+      asks: filteredAsks,
+    };
   }
 
   async createTraderAccountIxs(): Promise<
     [TransactionInstruction[], Keypair[]]
   > {
-    const trgAddress = await getTrgAddress(this.wallet, this.connection);
+    const trgAddress = await getTrgAddress(
+      this.wallet,
+      this.connection,
+      this.ADDRESSES.DEX_ID,
+      this.ADDRESSES.MPG_ID
+    );
     if (trgAddress) throw new Error("Trader already exists with this wallet!");
     const ixs = [];
 
@@ -63,13 +71,13 @@ export class Trader extends Perp {
 
     const traderFeeAcct = getTraderFeeAcct(
       initTrgAddress.publicKey,
-      ADDRESSES.MAINNET.MPG_ID,
-      ADDRESSES.MAINNET.FEES_ID,
-      ADDRESSES.MAINNET.TRADER_FEE_ACCT_SEED
+      this.ADDRESSES.MPG_ID,
+      this.ADDRESSES.FEES_ID,
+      this.ADDRESSES.TRADER_FEE_ACCT_SEED
     );
     const userTokenAccount = await getUserAta(
       this.wallet.publicKey,
-      ADDRESSES.MAINNET.VAULT_MINT
+      this.ADDRESSES.VAULT_MINT
     );
 
     const res = await this.connection.getAccountInfo(userTokenAccount);
@@ -79,7 +87,7 @@ export class Trader extends Perp {
           this.wallet.publicKey, // payer
           userTokenAccount, // ata
           this.wallet.publicKey, // owner
-          ADDRESSES.MAINNET.VAULT_MINT // mint
+          this.ADDRESSES.VAULT_MINT // mint
         )
       );
     }
@@ -89,12 +97,12 @@ export class Trader extends Perp {
         traderFeeAcct: traderFeeAcct,
         traderRiskGroup: initTrgAddress.publicKey,
         feeModelConfigAcct: getFeeModelConfigAcct(
-          ADDRESSES.MAINNET.MPG_ID,
-          ADDRESSES.MAINNET.FEES_ID,
-          ADDRESSES.MAINNET.FEES_SEED
+          this.ADDRESSES.MPG_ID,
+          this.ADDRESSES.FEES_ID,
+          this.ADDRESSES.FEES_SEED
         ),
-        MPG_ID: ADDRESSES.MAINNET.MPG_ID,
-        FEES_ID: ADDRESSES.MAINNET.FEES_ID,
+        MPG_ID: this.ADDRESSES.MPG_ID,
+        FEES_ID: this.ADDRESSES.FEES_ID,
       })
     );
 
@@ -106,7 +114,7 @@ export class Trader extends Perp {
           13744
         ), //Need to change
         space: 13744, //Need to change
-        programId: ADDRESSES.MAINNET.DEX_ID,
+        programId: this.ADDRESSES.DEX_ID,
       })
     );
     ixs.push(
@@ -115,14 +123,14 @@ export class Trader extends Perp {
         .accounts({
           owner: this.wallet.publicKey,
           traderRiskGroup: initTrgAddress.publicKey,
-          marketProductGroup: ADDRESSES.MAINNET.MPG_ID,
+          marketProductGroup: this.ADDRESSES.MPG_ID,
           riskSigner: getRiskSigner(
-            ADDRESSES.MAINNET.MPG_ID,
-            ADDRESSES.MAINNET.DEX_ID
+            this.ADDRESSES.MPG_ID,
+            this.ADDRESSES.DEX_ID
           ),
           traderRiskStateAcct: riskStateAccount.publicKey,
           traderFeeStateAcct: traderFeeAcct,
-          riskEngineProgram: ADDRESSES.MAINNET.RISK_ID,
+          riskEngineProgram: this.ADDRESSES.RISK_ID,
           systemProgram: SystemProgram.programId,
         })
         .signers([])
@@ -132,7 +140,12 @@ export class Trader extends Perp {
   }
 
   async init() {
-    const trgAddress = await getTrgAddress(this.wallet, this.connection);
+    const trgAddress = await getTrgAddress(
+      this.wallet,
+      this.connection,
+      this.ADDRESSES.DEX_ID,
+      this.ADDRESSES.MPG_ID
+    );
     if (!trgAddress)
       throw new Error(
         "Create a Trader Account first by using,createTraderAccount()"
@@ -142,13 +155,13 @@ export class Trader extends Perp {
     this.traderRiskGroup = res![0];
     const userTokenAccount = await getUserAta(
       this.wallet.publicKey,
-      ADDRESSES.MAINNET.VAULT_MINT
+      this.ADDRESSES.VAULT_MINT
     );
     this.userTokenAccount = userTokenAccount;
     const vault = getMpgVault(
-      ADDRESSES.MAINNET.VAULT_SEED,
-      ADDRESSES.MAINNET.MPG_ID,
-      ADDRESSES.MAINNET.DEX_ID
+      this.ADDRESSES.VAULT_SEED,
+      this.ADDRESSES.MPG_ID,
+      this.ADDRESSES.DEX_ID
     );
     this.marketProductGroupVault = vault;
   }
@@ -196,15 +209,12 @@ export class Trader extends Perp {
         traderRiskGroup: this.trgKey,
         marketProductGroup: this.traderRiskGroup.marketProductGroup,
         marketProductGroupVault: this.marketProductGroupVault,
-        riskEngineProgram: ADDRESSES.MAINNET.RISK_ID,
+        riskEngineProgram: this.ADDRESSES.RISK_ID,
         riskModelConfigurationAcct:
           this.marketProductGroup.riskModelConfigurationAcct,
         riskOutputRegister: this.marketProductGroup.riskOutputRegister,
         traderRiskStateAcct: this.traderRiskGroup.riskStateAccount,
-        riskSigner: getRiskSigner(
-          ADDRESSES.MAINNET.MPG_ID,
-          ADDRESSES.MAINNET.DEX_ID
-        ),
+        riskSigner: getRiskSigner(this.ADDRESSES.MPG_ID, this.ADDRESSES.DEX_ID),
       },
       params = {
         quantity: amount,
@@ -240,26 +250,26 @@ export class Trader extends Perp {
       traderRiskGroup: this.trgKey,
       marketProductGroup: this.traderRiskGroup?.marketProductGroup,
       product: product.PRODUCT_ID,
-      aaobProgram: ADDRESSES.MAINNET.ORDERBOOK_P_ID,
+      aaobProgram: this.ADDRESSES.ORDERBOOK_P_ID,
       orderbook: product.ORDERBOOK_ID,
       marketSigner: product.marketSigner,
       eventQueue: product.EVENT_QUEUE,
       bids: product.BIDS,
       asks: product.ASKS,
       systemProgram: SystemProgram.programId,
-      feeModelProgram: ADDRESSES.MAINNET.FEES_ID,
+      feeModelProgram: this.ADDRESSES.FEES_ID,
       feeModelConfigurationAcct:
         this.marketProductGroup.feeModelConfigurationAcct,
       traderFeeStateAcct: this.traderRiskGroup?.feeStateAccount,
       feeOutputRegister: this.marketProductGroup.feeOutputRegister,
-      riskEngineProgram: ADDRESSES.MAINNET.RISK_ID,
+      riskEngineProgram: this.ADDRESSES.RISK_ID,
       riskModelConfigurationAcct:
         this.marketProductGroup.riskModelConfigurationAcct,
       riskOutputRegister: this.marketProductGroup.riskOutputRegister,
       traderRiskStateAcct: this.traderRiskGroup?.riskStateAccount,
       riskAndFeeSigner: getRiskAndFeeSigner(
-        ADDRESSES.MAINNET.MPG_ID,
-        ADDRESSES.MAINNET.DEX_ID
+        this.ADDRESSES.MPG_ID,
+        this.ADDRESSES.DEX_ID
       ),
     };
 
@@ -280,21 +290,21 @@ export class Trader extends Perp {
       traderRiskGroup: this.trgKey,
       marketProductGroup: this.traderRiskGroup?.marketProductGroup,
       product: product.PRODUCT_ID,
-      aaobProgram: ADDRESSES.MAINNET.ORDERBOOK_P_ID,
+      aaobProgram: this.ADDRESSES.ORDERBOOK_P_ID,
       orderbook: product.ORDERBOOK_ID,
       marketSigner: product.marketSigner,
       eventQueue: product.EVENT_QUEUE,
       bids: product.BIDS,
       asks: product.ASKS,
       systemProgram: SystemProgram.programId,
-      riskEngineProgram: ADDRESSES.MAINNET.RISK_ID,
+      riskEngineProgram: this.ADDRESSES.RISK_ID,
       riskModelConfigurationAcct:
         this.marketProductGroup.riskModelConfigurationAcct,
       riskOutputRegister: this.marketProductGroup.riskOutputRegister,
       traderRiskStateAcct: this.traderRiskGroup?.riskStateAccount,
       riskSigner: getRiskAndFeeSigner(
-        ADDRESSES.MAINNET.MPG_ID,
-        ADDRESSES.MAINNET.DEX_ID
+        this.ADDRESSES.MPG_ID,
+        this.ADDRESSES.DEX_ID
       ),
     };
 
