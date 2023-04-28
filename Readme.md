@@ -1,4 +1,22 @@
-  # gfx-perp-sdk
+  <div align="center">
+  <img height="142" src="https://github.com/GooseFX1/gfx-web-app/blob/dev/public/img/assets/gfx_logo_gradient_lite.svg" />
+
+  <h4>
+    <a href="https://goosefx.io">Website</a>
+    <span> | </span>
+    <a href="https://docs.goosefx.io">Docs</a>
+    <span> | </span>
+    <a href="https://discord.com/channels/833693973687173121/833742620371058688">Discord</a>
+    <span> | </span>
+    <a href="https://www.t.me/goosefx">Telegram</a>
+    <span> | </span>
+    <a href="https://medium.com/goosefx">Medium</a>
+  </h4>
+  <br />
+  <br />
+</div>
+
+  # GooseFX perpetual futures SDK
 
   This SDK contains 3 classes to interact with the GooseFX on-chain perpetual futures. 
   * ``Perp``
