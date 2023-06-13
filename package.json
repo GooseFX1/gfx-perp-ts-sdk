@@ -1,7 +1,7 @@
 {
   "name": "gfx-perp-sdk",
-  "version": "1.0.3",
-  "description": "",
+  "version": "1.0.6",
+  "description": "SDK for interacting with GooseFX Perpetual futures trading platform",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
