@@ -4,46 +4,46 @@ import * as types from "../types" // eslint-disable-line @typescript-eslint/no-u
 import * as borsh from "@project-serum/borsh"
 
 export interface usizeFields {
-  userAccount: BN
+  value: BN
 }
 
 export interface usizeJSON {
-  userAccount: string
+  value: string
 }
 
 export class usize {
-  readonly userAccount: BN
+  readonly value: BN
 
   constructor(fields: usizeFields) {
-    this.userAccount = fields.userAccount
+    this.value = fields.value
   }
 
   static layout(property?: string) {
-    return borsh.struct([borsh.i64("userAccount")], property)
+    return borsh.struct([borsh.i64("value")], property)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromDecoded(obj: any) {
     return new usize({
-      userAccount: obj.userAccount,
+      value: obj.value,
     })
   }
 
   static toEncodable(fields: usizeFields) {
     return {
-      userAccount: fields.userAccount,
+      value: fields.value,
     }
   }
 
   toJSON(): usizeJSON {
     return {
-      userAccount: this.userAccount.toString(),
+      value: this.value.toString(),
     }
   }
 
   static fromJSON(obj: usizeJSON): usize {
     return new usize({
-      userAccount: new BN(obj.userAccount),
+      value: new BN(obj.value),
     })
   }
 

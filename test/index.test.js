@@ -141,8 +141,8 @@ xtest("Test cancel Order", async () => {
   console.log("res is: ", res);
 });
 
-test('Get Open orders for trader', async() => {
-  const perp = new Perp(connection, 'mainnet', wall)
+xtest('Get Open orders for trader', async() => {
+  const perp = new Perp(connection, 'devnet', wall)
   await perp.init()
   const product = new Product(perp);
   product.initByIndex(0);
@@ -150,4 +150,25 @@ test('Get Open orders for trader', async() => {
   await trader.init();
   const orderbookData = await trader.getOpenOrders(product)
   console.log("orderbook: ", orderbookData)
+})
+
+xtest('Get Trader details', async() => {
+  const perp = new Perp(connection, 'devnet', wall)
+  await perp.init()
+  const trader = new Trader(perp)
+  await trader.init();
+  console.log("Total Deposited: ", trader.totalDeposited)
+  console.log("Total Withdrawn: ", trader.totalWithdrawn)
+  console.log("Margin Available: ", trader.marginAvailable)
+  console.log("Total Traded Volume: ", trader.totalTradedVolume)
+  console.log("Active Positions: ", trader.traderPositions)
+})
+
+test('Get Trade history for Product', async() => {
+  const perp = new Perp(connection, 'mainnet', wall)
+  await perp.init()
+  const product = new Product(perp);
+  product.initByIndex(0);
+  const response = await product.getTrades()
+  console.log("tradeHistory: ", response.data)
 })

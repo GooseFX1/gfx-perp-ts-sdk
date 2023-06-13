@@ -1,5 +1,6 @@
   <div align="center">
   <img height="142" src="https://github.com/GooseFX1/gfx-web-app/blob/dev/public/img/assets/gfx_logo_gradient_lite.svg" />
+  <h2>GooseFX Perpetual Futures SDK</h2>
 
   <h4>
     <a href="https://goosefx.io">Website</a>

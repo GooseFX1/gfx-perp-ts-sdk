@@ -2,6 +2,8 @@ import { Keypair, PublicKey, SystemProgram, TransactionInstruction } from "@sola
 import { TraderRiskGroup } from "../layout";
 import { Fractional } from "../types";
 import {
+  TraderPosition,
+  displayFractional,
   getFeeModelConfigAcct,
   getMpgVault,
   getOrderTypeEnum,
@@ -23,16 +25,23 @@ import { Product } from "./product";
 
 export class Trader extends Perp {
   traderRiskGroup: TraderRiskGroup | null;
+  trgBytes: Buffer;
   trgKey: PublicKey;
   userTokenAccount: PublicKey;
   marketProductGroupVault: PublicKey;
+  totalDeposited: string;
+  totalWithdrawn: string;
+  marginAvailable: string;
+  traderPositions: TraderPosition[];
+  totalTradedVolume: string;
 
   constructor(perp: Perp) {
     super(
       perp.connection,
       perp.networkType,
       perp.wallet,
-      perp.marketProductGroup
+      perp.marketProductGroup,
+      perp.mpgBytes
     );
   }
 
@@ -152,6 +161,7 @@ export class Trader extends Perp {
       );
     const res = await TraderRiskGroup.fetch(this.connection, trgAddress);
     this.trgKey = trgAddress;
+    this.trgBytes = res[1].data;
     this.traderRiskGroup = res![0];
     const userTokenAccount = await getUserAta(
       this.wallet.publicKey,
@@ -164,6 +174,7 @@ export class Trader extends Perp {
       this.ADDRESSES.DEX_ID
     );
     this.marketProductGroupVault = vault;
+    await this.refreshData();
   }
 
   async depositFundsIx(amount: Fractional) {
@@ -232,7 +243,7 @@ export class Trader extends Perp {
     side: TradeSide,
     orderType: OrderType,
     product: Product,
-    matchLimit?: number,
+    matchLimit?: number
   ) {
     const orderParam = {
       maxBaseQty: qty,
@@ -313,5 +324,58 @@ export class Trader extends Perp {
       .accounts(orderAccounts)
       .signers([])
       .instruction();
+  }
+
+  async refreshData() {
+    const res = await TraderRiskGroup.fetch(this.connection, this.trgKey);
+    this.trgKey = this.trgKey;
+    this.trgBytes = res[1].data;
+    this.traderRiskGroup = res![0];
+
+    const wasm = await import("perps-wasm");
+
+    const marginAvailable = wasm.margin_available(this.mpgBytes, this.trgBytes);
+    const nativeFractional = new Fractional({
+      m: new BN(marginAvailable.m.toString()),
+      exp: new BN((marginAvailable.exp + 5n).toString()),
+    });
+    this.marginAvailable = displayFractional(nativeFractional);
+
+    const volume = wasm.get_volume(this.trgBytes);
+    const nativeFractionalvolume = new Fractional({
+      m: new BN(volume.m.toString()),
+      exp: new BN((volume.exp + 5n).toString()),
+    });
+    this.totalTradedVolume = displayFractional(nativeFractionalvolume);
+
+    const transfers = wasm.get_user_transfers(this.trgBytes);
+    const deposited = new Fractional({
+      m: new BN(transfers.deposited.m.toString()),
+      exp: new BN((transfers.deposited.exp + 5n).toString()),
+    });
+    const withdrawn = new Fractional({
+      m: new BN(transfers.withdrawn.m.toString()),
+      exp: new BN((transfers.withdrawn.exp + 5n).toString()),
+    });
+
+    this.totalDeposited = displayFractional(deposited);
+    this.totalWithdrawn = displayFractional(withdrawn);
+
+    const positions: TraderPosition[] = [];
+    for (let i = 0; i < this.traderRiskGroup?.traderPositions.length; i++) {
+      const position = this.traderRiskGroup.traderPositions[i];
+      if (position.productKey.toBase58() === "11111111111111111111111111111111")
+        continue;
+      const obj = {
+        index: position.productIndex.value.toString(),
+        quantity: displayFractional(position.position),
+        averagePrice: displayFractional(
+          this.traderRiskGroup.avgPosition[i].price
+        ),
+      };
+      positions.push(obj);
+    }
+
+    this.traderPositions = positions;
   }
 }

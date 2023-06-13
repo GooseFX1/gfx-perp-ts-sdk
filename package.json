@@ -8,7 +8,12 @@
     "prepare": "npm run build",
     "build": "tsc -p src"
   },
-  "keywords": ["GooseFX", "Perpetual Futures", "Perps", "Perps SDK"],
+  "keywords": [
+    "GooseFX",
+    "Perpetual Futures",
+    "Perps",
+    "Perps SDK"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
@@ -24,6 +29,8 @@
     "@solana/spl-token": "^0.3.7",
     "@solana/web3.js": "^1.75.0",
     "@types/bn.js": "^5.1.1",
-    "bn.js": "^5.2.1"
+    "axios": "^1.4.0",
+    "bn.js": "^5.2.1",
+    "perps-wasm": "file:./src/wasm"
   }
 }

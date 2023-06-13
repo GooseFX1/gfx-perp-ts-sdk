@@ -34,6 +34,7 @@ export type ConstantIDs = {
 
 export class Perp {
   marketProductGroup: MarketProductGroup;
+  mpgBytes: Buffer;
   connection: Connection;
   program: Program;
   wallet: Wallet;
@@ -44,7 +45,8 @@ export class Perp {
     connection: Connection,
     networkType: NetworkType,
     wallet: Wallet,
-    mpg?: MarketProductGroup
+    mpg?: MarketProductGroup,
+    mpgBytes?: Buffer
   ) {
     this.wallet = wallet;
     const provider = new AnchorProvider(
@@ -65,11 +67,13 @@ export class Perp {
       this.ADDRESSES = ADDRESSES.DEVNET;
     }
     if (mpg) this.marketProductGroup = mpg;
+    if (mpgBytes) this.mpgBytes = mpgBytes;
   }
 
   async init() {
     const mpgId = this.ADDRESSES.MPG_ID
     const mpg = await MarketProductGroup.fetch(this.connection, mpgId);
     this.marketProductGroup = mpg![0];
+    this.mpgBytes = mpg[1].data;
   }
 }

@@ -1,4 +1,4 @@
-import { PublicKey, Connection } from '@solana/web3.js'
+import { PublicKey, Connection, AccountInfo } from '@solana/web3.js'
 import BN from 'bn.js' // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from '@project-serum/borsh' // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as types from '../types' // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -172,7 +172,7 @@ export class MarketProductGroup {
     this.sequenceNumber = fields.sequenceNumber
   }
 
-  static async fetch(c: Connection, address: PublicKey): Promise<[MarketProductGroup, any] | null> {
+  static async fetch(c: Connection, address: PublicKey): Promise<[MarketProductGroup, AccountInfo<Buffer>] | null> {
     const info = await c.getAccountInfo(address, 'processed')
 
     if (info === null) {

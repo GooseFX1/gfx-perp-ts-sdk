@@ -1,4 +1,4 @@
-import { PublicKey, Connection } from '@solana/web3.js';
+import { PublicKey, Connection, AccountInfo } from '@solana/web3.js';
 import BN from 'bn.js'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from '@project-serum/borsh'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as types from '../types'; // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -135,7 +135,7 @@ export class TraderRiskGroup {
   static async fetch(
     c: Connection,
     address: PublicKey
-  ): Promise<[TraderRiskGroup, any] | null> {
+  ): Promise<[TraderRiskGroup, AccountInfo<Buffer>] | null> {
     const info = await c.getAccountInfo(address, "processed");
 
     if (info === null) {

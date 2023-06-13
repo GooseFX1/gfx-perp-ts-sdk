@@ -5,6 +5,13 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 import { struct, u8 } from '@solana/buffer-layout'
 import { TradeSide, OrderType } from "./public";
+import { Fractional } from "./types";
+
+export type TraderPosition = {
+  quantity: string,
+  averagePrice: string,
+  index: string
+}
 
 export const getTrgAddress = async (
   wallet: NodeWallet,
@@ -263,3 +270,22 @@ export const getRiskAndFeeSigner = (
   DEX_ID: PublicKey
 ): PublicKey =>
   PublicKey.findProgramAddressSync([marketProductGroup.toBuffer()], DEX_ID)[0];
+
+export const displayFractional = (val: Fractional): string => {
+  const base = val.m.toString();
+  if (Number(base) === 0) return "0.00";
+  const decimals = Number(val.exp.toString());
+  if (decimals === 0) return base;
+  else if (base[0] === "-" && base.length - 1 === decimals)
+    return "-0." + base.slice(1, base.length);
+  else if (base[0] === "-" && base.length - 1 < decimals)
+    return (
+      "-0." +
+      "0".repeat(decimals - base.length + 1) +
+      base.slice(1, base.length)
+    );
+  else if (base.length === decimals) return "0." + base;
+  else if (base.length < decimals)
+    return "0." + "0".repeat(decimals - base.length) + base;
+  return base.slice(0, -decimals) + "." + base.slice(-decimals);
+};

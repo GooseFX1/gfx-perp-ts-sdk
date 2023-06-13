@@ -1,8 +1,9 @@
-import { Program } from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { Perp } from "./base";
 import { Slab } from "./orderbook/Agnostic";
 import { convertBidsAsks, convertBidsAsksOpenOrders, getMarketSigner } from "../utils";
+import axios from "axios";
+import { API_BASE, TRADE_HISTORY } from "../constants";
 
 export class Product extends Perp {
   name: string;
@@ -26,7 +27,7 @@ export class Product extends Perp {
 
   initByIndex(index: number) {
     let products = null;
-    products = this.ADDRESSES
+    products = this.ADDRESSES;
     if (index > products.PRODUCTS.length - 1)
       throw new Error("Index out of bounds");
     const selectedProduct = products.PRODUCTS[index];
@@ -38,7 +39,10 @@ export class Product extends Perp {
     this.EVENT_QUEUE = selectedProduct.EVENT_QUEUE;
     this.tick_size = selectedProduct.tick_size;
     this.decimals = selectedProduct.decimals;
-    this.marketSigner = getMarketSigner(selectedProduct.PRODUCT_ID, this.ADDRESSES.DEX_ID)
+    this.marketSigner = getMarketSigner(
+      selectedProduct.PRODUCT_ID,
+      this.ADDRESSES.DEX_ID
+    );
   }
 
   initByName(name: string) {
@@ -134,8 +138,22 @@ export class Product extends Perp {
     };
   }
 
-  subscribeToOrderbook(subscribeFn: any){
-    const id = this.connection.onAccountChange(this.EVENT_QUEUE, subscribeFn)
-    return id
+  async getTrades() {
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    const data = {
+      pairName: this.name,
+      devnet: this.networkType === "devnet" ? true : false,
+    };
+    const response = await axios.post(API_BASE + TRADE_HISTORY, data, {
+      headers,
+    });
+    return response;
+  }
+
+  subscribeToOrderbook(subscribeFn: any) {
+    const id = this.connection.onAccountChange(this.EVENT_QUEUE, subscribeFn);
+    return id;
   }
 }

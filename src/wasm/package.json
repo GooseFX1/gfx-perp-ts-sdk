@@ -1,0 +1,11 @@
+{
+  "name": "gfx-perps-wasm",
+  "version": "0.1.0",
+  "files": [
+    "gfx_perps_wasm_bg.wasm",
+    "gfx_perps_wasm.js",
+    "gfx_perps_wasm.d.ts"
+  ],
+  "main": "gfx_perps_wasm.js",
+  "types": "gfx_perps_wasm.d.ts"
+}
