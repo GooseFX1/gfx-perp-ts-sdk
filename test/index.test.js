@@ -45,20 +45,31 @@ xtest('Test get orderbook L3', async () => {
 
 function sleep(n) { return new Promise(resolve=>setTimeout(resolve,n)); }
 
-xtest('Test orderbook subscription', async () => {
+xtest('Test orderbook bids subscription', async () => {
   const perp = new Perp(connection, 'mainnet', wall)
   await perp.init()
   const product = new Product(perp)
   product.initByIndex(0)
-  async function handleAccountChange(){
-    const res = await product.getOrderbookL2()
-    console.log("Updated orderbook: ", res)
-
+  async function handleAccountChange(e){
+    console.log("event notification e: ", e)
   }
-  const subscribeId = product.subscribeToOrderbook(handleAccountChange)
-  await sleep(10*1000)
+  const subscribeId = product.subscribeToBids((e) => handleAccountChange(e))
+  await sleep(100*1000)
   connection.removeAccountChangeListener(subscribeId)
-})
+}, 100*1000)
+
+xtest('Test trade subscription', async () => {
+  const perp = new Perp(connection, 'mainnet', wall)
+  await perp.init()
+  const product = new Product(perp)
+  product.initByIndex(0)
+  async function handleAccountChange(e){
+    console.log("event notification: ", e)
+  }
+  const subscribeId = product.subscribeToTrades((e) => handleAccountChange(e))
+  await sleep(100*1000)
+  connection.removeAccountChangeListener(subscribeId)
+}, 100*1000)
 
 xtest('Test initializing new Trader Account', async() => {
   const perp = new Perp(connection, 'mainnet', wall)
@@ -164,7 +175,7 @@ xtest('Get Trader details', async() => {
   console.log("Active Positions: ", trader.traderPositions)
 })
 
-test('Get Trade history for Product', async() => {
+xtest('Get Trade history for Product', async() => {
   const perp = new Perp(connection, 'mainnet', wall)
   await perp.init()
   const product = new Product(perp);

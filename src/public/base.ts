@@ -3,6 +3,7 @@ import { MarketProductGroup } from "../layout";
 import { AnchorProvider, Program, Wallet } from "@project-serum/anchor";
 import dexIdl from "../idl/dex.json";
 import { ADDRESSES } from "../constants";
+import { Side } from "./orderbook/event_queue";
 
 export type NetworkType = "devnet" | "mainnet";
 export type TradeSide = "buy" | "sell";
@@ -31,6 +32,16 @@ export type ConstantIDs = {
   FEES_SEED: string;
   TRADER_FEE_ACCT_SEED: string;
 };
+
+export type Trade = {
+  side: Side;
+  orderId: string;
+  taker: string;
+  maker: string;
+  price: number;
+  qty: number;
+  time: number
+}
 
 export class Perp {
   marketProductGroup: MarketProductGroup;

@@ -4,8 +4,10 @@ import { TOKEN_PROGRAM_ID } from "@project-serum/anchor/dist/cjs/utils/token";
 import { ASSOCIATED_TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 import { struct, u8 } from '@solana/buffer-layout'
-import { TradeSide, OrderType } from "./public";
+import { TradeSide, OrderType, Trade } from "./public";
 import { Fractional } from "./types";
+import { EventFill } from "./public/orderbook/event_queue";
+import { BN } from "bn.js";
 
 export type TraderPosition = {
   quantity: string,
@@ -289,3 +291,50 @@ export const displayFractional = (val: Fractional): string => {
     return "0." + "0".repeat(decimals - base.length) + base;
   return base.slice(0, -decimals) + "." + base.slice(-decimals);
 };
+
+const checkSingleEvent = (a: EventFill, b: EventFill): boolean => {
+  if (
+    a.baseSize.eq(b.baseSize) &&
+    a.makerOrderId.eq(b.makerOrderId) &&
+    a.takerSide === b.takerSide &&
+    a.quoteSize.eq(b.quoteSize) &&
+    a.makerCallbackInfo.toString() === b.makerCallbackInfo.toString() &&
+    a.takerCallbackInfo.toString() === b.takerCallbackInfo.toString()
+  )
+    return true;
+  return false;
+};
+
+export const getDiffEvents = (prevEvents: EventFill[], currentEvents: EventFill[]): EventFill[] => {
+  const newEvents: EventFill[] = [] 
+  for (let i=0; i<currentEvents.length; i++){
+    let found = false
+    for (let j=0; j<prevEvents.length; j++){
+      const isSame = checkSingleEvent(currentEvents[i], prevEvents[j])
+      if (isSame){
+        found = true
+        break
+      }
+    }
+    if (!found){
+      newEvents.push(currentEvents[i])
+    }
+  }
+  return newEvents;
+}
+
+export const filterEvent = (res: EventFill, tickSize: number): Trade => {
+  const maker = new PublicKey(res.makerCallbackInfo.slice(0, 32));
+  const taker = new PublicKey(res.takerCallbackInfo.slice(0, 32));
+  const dbTrade: Trade = {
+    side: res.takerSide,
+    orderId: res.makerOrderId.toString(),
+    taker: taker.toBase58(),
+    maker: maker.toBase58(),
+    price: res.quoteSize.mul(new BN('100')).div(res.baseSize).div(new BN('100')).toNumber() / tickSize,
+    qty: res.baseSize.toNumber() / 1000000000000,
+    time: Math.floor((+new Date())/1000)
+  }
+  // dbTrade["price"] = res.quoteSize.toNumber() / (res.baseSize.toNumber() * 100)
+  return dbTrade
+}

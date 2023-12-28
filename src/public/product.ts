@@ -1,9 +1,10 @@
-import { PublicKey } from "@solana/web3.js";
+import { AccountInfo, PublicKey } from "@solana/web3.js";
 import { Perp } from "./base";
 import { Slab } from "./orderbook/Agnostic";
-import { convertBidsAsks, convertBidsAsksOpenOrders, getMarketSigner } from "../utils";
+import { convertBidsAsks, convertBidsAsksOpenOrders, filterEvent, getDiffEvents, getMarketSigner } from "../utils";
 import axios from "axios";
 import { API_BASE, TRADE_HISTORY } from "../constants";
+import { EventFill, EventOut, EventQueue } from "./orderbook/event_queue";
 
 export class Product extends Perp {
   name: string;
@@ -15,6 +16,7 @@ export class Product extends Perp {
   marketSigner: PublicKey;
   tick_size: number;
   decimals: number;
+  events: EventFill[];
 
   constructor(perp: Perp) {
     super(
@@ -43,6 +45,7 @@ export class Product extends Perp {
       selectedProduct.PRODUCT_ID,
       this.ADDRESSES.DEX_ID
     );
+    this.events = [];
   }
 
   initByName(name: string) {
@@ -59,6 +62,7 @@ export class Product extends Perp {
     this.EVENT_QUEUE = selectedProduct.EVENT_QUEUE;
     this.tick_size = selectedProduct.tick_size;
     this.decimals = selectedProduct.decimals;
+    this.events = [];
   }
 
   async getOrderbookL2() {
@@ -152,8 +156,70 @@ export class Product extends Perp {
     return response;
   }
 
-  subscribeToOrderbook(subscribeFn: any) {
-    const id = this.connection.onAccountChange(this.EVENT_QUEUE, subscribeFn);
+  subscribeToBids(subscribeFn: any) {
+    const id = this.connection.onAccountChange(this.BIDS,(data) =>  this.processOrderbookSide(data, 0, subscribeFn));
+    return id;
+  }
+
+  subscribeToAsks(subscribeFn: any) {
+    const id = this.connection.onAccountChange(this.ASKS,(data) =>  this.processOrderbookSide(data, 1, subscribeFn));
+    return id;
+  }
+
+  private processOrderbookSide = (accountData: AccountInfo<Buffer> | null, side: number, subscribeFn: Function) => {
+    const sideData = accountData.data;
+    const sideDeserialized = Slab.deserialize(sideData, 40);
+    const sidesOrderbook = sideDeserialized.getL2DepthJS(40, true);
+    if (side === 0){
+      const finalData = convertBidsAsks(sidesOrderbook, [], {
+        tick_size: this.tick_size,
+        decimals: this.decimals,
+      });
+      subscribeFn({
+        bids: finalData[0],
+      });
+    }
+    else {
+      const finalData = convertBidsAsks([], sidesOrderbook, {
+        tick_size: this.tick_size,
+        decimals: this.decimals,
+      });
+      subscribeFn({
+        asks: finalData[1],
+      });
+    }
+  }
+
+  private processEq = (accountData: AccountInfo<Buffer> | null, subscribeFn: Function) => {
+    const eqData = accountData.data;
+    const eventQueueSerialized: EventQueue = EventQueue.parse(40, eqData);
+    const count = eventQueueSerialized.header.count.toNumber();
+    const head = eventQueueSerialized.header.head.toNumber();
+
+    const currentEvents: EventFill[] = [];
+    for (let i=0; i<count; i++){
+      const event = eventQueueSerialized.parseEvent(i + head);
+      if (event instanceof EventFill){
+        currentEvents.push(event);
+      }
+      else if (event instanceof EventOut){
+      }
+    }
+    if (!currentEvents.length){
+      return
+    }
+    const diffEvents = getDiffEvents(this.events, currentEvents);
+    this.events = this.events.concat(currentEvents);
+    if (diffEvents.length){
+      diffEvents.map((item) => {
+        const filtered = filterEvent(item, this.tick_size)
+        subscribeFn(filtered)
+      })
+    }
+  }
+
+  subscribeToTrades(subscribeFn: any) {
+    const id = this.connection.onAccountChange(this.EVENT_QUEUE,(data) =>  this.processEq(data, subscribeFn));
     return id;
   }
 }
