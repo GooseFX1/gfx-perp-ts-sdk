@@ -192,7 +192,7 @@ export class Trader extends Perp {
       this.ADDRESSES.DEX_ID
     );
     this.marketProductGroupVault = vault;
-    await this.refreshData();
+    // await this.refreshData();
   }
 
   async closetrgIx(){
@@ -223,7 +223,7 @@ export class Trader extends Perp {
       !this.userTokenAccount
     )
       throw new Error(
-        "Please run init() function first to initialise the trader state!"
+        "Please run init() function first to Initialize the trader state!"
       );
     const accounts = {
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -250,7 +250,7 @@ export class Trader extends Perp {
       !this.userTokenAccount
     )
       throw new Error(
-        "Please run init() function first to initialise the trader state!"
+        "Please run init() function first to Initialize the trader state!"
       );
     const accounts = {
         buddyLinkProgram: this.ADDRESSES.BUDDYLINK_PROGRAM_ID,
@@ -368,56 +368,56 @@ export class Trader extends Perp {
       .instruction();
   }
 
-  async refreshData() {
-    const res = await TraderRiskGroup.fetch(this.connection, this.trgKey);
-    this.trgKey = this.trgKey;
-    this.trgBytes = res[1].data;
-    this.traderRiskGroup = res![0];
+  // async refreshData() {
+  //   const res = await TraderRiskGroup.fetch(this.connection, this.trgKey);
+  //   this.trgKey = this.trgKey;
+  //   this.trgBytes = res[1].data;
+  //   this.traderRiskGroup = res![0];
 
-    const wasm = await import("perps-wasm");
+  //   const wasm = await import("perps-wasm");
 
-    const marginAvailable = wasm.margin_available(this.mpgBytes, this.trgBytes);
-    const nativeFractional = new Fractional({
-      m: new BN(marginAvailable.m.toString()),
-      exp: new BN((marginAvailable.exp + 5n).toString()),
-    });
-    this.marginAvailable = displayFractional(nativeFractional);
+  //   const marginAvailable = wasm.margin_available(this.mpgBytes, this.trgBytes);
+  //   const nativeFractional = new Fractional({
+  //     m: new BN(marginAvailable.m.toString()),
+  //     exp: new BN((marginAvailable.exp + 5n).toString()),
+  //   });
+  //   this.marginAvailable = displayFractional(nativeFractional);
 
-    const volume = wasm.get_volume(this.trgBytes);
-    const nativeFractionalvolume = new Fractional({
-      m: new BN(volume.m.toString()),
-      exp: new BN((volume.exp + 5n).toString()),
-    });
-    this.totalTradedVolume = displayFractional(nativeFractionalvolume);
+  //   const volume = wasm.get_volume(this.trgBytes);
+  //   const nativeFractionalvolume = new Fractional({
+  //     m: new BN(volume.m.toString()),
+  //     exp: new BN((volume.exp + 5n).toString()),
+  //   });
+  //   this.totalTradedVolume = displayFractional(nativeFractionalvolume);
 
-    const transfers = wasm.get_user_transfers(this.trgBytes);
-    const deposited = new Fractional({
-      m: new BN(transfers.deposited.m.toString()),
-      exp: new BN((transfers.deposited.exp + 5n).toString()),
-    });
-    const withdrawn = new Fractional({
-      m: new BN(transfers.withdrawn.m.toString()),
-      exp: new BN((transfers.withdrawn.exp + 5n).toString()),
-    });
+  //   const transfers = wasm.get_user_transfers(this.trgBytes);
+  //   const deposited = new Fractional({
+  //     m: new BN(transfers.deposited.m.toString()),
+  //     exp: new BN((transfers.deposited.exp + 5n).toString()),
+  //   });
+  //   const withdrawn = new Fractional({
+  //     m: new BN(transfers.withdrawn.m.toString()),
+  //     exp: new BN((transfers.withdrawn.exp + 5n).toString()),
+  //   });
 
-    this.totalDeposited = displayFractional(deposited);
-    this.totalWithdrawn = displayFractional(withdrawn);
+  //   this.totalDeposited = displayFractional(deposited);
+  //   this.totalWithdrawn = displayFractional(withdrawn);
 
-    const positions: TraderPosition[] = [];
-    for (let i = 0; i < this.traderRiskGroup?.traderPositions.length; i++) {
-      const position = this.traderRiskGroup.traderPositions[i];
-      if (position.productKey.toBase58() === "11111111111111111111111111111111")
-        continue;
-      const obj = {
-        index: position.productIndex.value.toString(),
-        quantity: displayFractional(position.position),
-        averagePrice: displayFractional(
-          this.traderRiskGroup.avgPosition[i].price
-        ),
-      };
-      positions.push(obj);
-    }
+  //   const positions: TraderPosition[] = [];
+  //   for (let i = 0; i < this.traderRiskGroup?.traderPositions.length; i++) {
+  //     const position = this.traderRiskGroup.traderPositions[i];
+  //     if (position.productKey.toBase58() === "11111111111111111111111111111111")
+  //       continue;
+  //     const obj = {
+  //       index: position.productIndex.value.toString(),
+  //       quantity: displayFractional(position.position),
+  //       averagePrice: displayFractional(
+  //         this.traderRiskGroup.avgPosition[i].price
+  //       ),
+  //     };
+  //     positions.push(obj);
+  //   }
 
-    this.traderPositions = positions;
-  }
+  //   this.traderPositions = positions;
+  // }
 }
