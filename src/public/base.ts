@@ -28,6 +28,7 @@ export type ConstantIDs = {
     decimals: number;
   }[];
   VAULT_MINT: PublicKey;
+  BUDDYLINK_PROGRAM_ID: PublicKey;
   VAULT_SEED: string;
   FEES_SEED: string;
   TRADER_FEE_ACCT_SEED: string;
