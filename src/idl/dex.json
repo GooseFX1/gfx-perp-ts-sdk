@@ -221,6 +221,32 @@
       ]
     },
     {
+      "name": "closeTraderRiskGroup",
+      "accounts": [
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "traderRiskGroup",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "marketProductGroup",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "initializeMarketProduct",
       "accounts": [
         {
@@ -344,6 +370,11 @@
         },
         {
           "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "referralKey",
           "isMut": false,
           "isSigner": false
         }
@@ -672,6 +703,11 @@
       "accounts": [
         {
           "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "buddyLinkProgram",
           "isMut": false,
           "isSigner": false
         },
