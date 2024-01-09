@@ -12,6 +12,7 @@ import {
   getTradeSideEnum,
   getTraderFeeAcct,
   getTrgAddress,
+  getTrgAllAddresses,
   getUserAta,
   initializeTraderFeeAcctIx,
 } from "../utils";
@@ -34,8 +35,9 @@ export class Trader extends Perp {
   marginAvailable: string;
   traderPositions: TraderPosition[];
   totalTradedVolume: string;
+  referralKey: PublicKey | null
 
-  constructor(perp: Perp) {
+  constructor(perp: Perp, referralKey?: PublicKey) {
     super(
       perp.connection,
       perp.networkType,
@@ -43,6 +45,12 @@ export class Trader extends Perp {
       perp.marketProductGroup,
       perp.mpgBytes
     );
+    if (referralKey){
+      this.referralKey = referralKey
+    }
+    else{
+      this.referralKey = PublicKey.default
+    }
   }
 
   async getOpenOrders(product: Product) {
@@ -89,6 +97,7 @@ export class Trader extends Perp {
       this.ADDRESSES.VAULT_MINT
     );
 
+    const referralKey = this.referralKey
     const res = await this.connection.getAccountInfo(userTokenAccount);
     if (!res) {
       ixs.push(
@@ -141,11 +150,20 @@ export class Trader extends Perp {
           traderFeeStateAcct: traderFeeAcct,
           riskEngineProgram: this.ADDRESSES.RISK_ID,
           systemProgram: SystemProgram.programId,
+          referralKey: referralKey
         })
         .signers([])
         .instruction()
     );
     return [ixs, [initTrgAddress, riskStateAccount]];
+  }
+
+  async getAllTraderAddresses(): Promise<PublicKey[]> {
+    const addresses = await getTrgAllAddresses(this.wallet,
+      this.connection,
+      this.ADDRESSES.DEX_ID,
+      this.ADDRESSES.MPG_ID)
+    return addresses;
   }
 
   async init() {
@@ -175,6 +193,27 @@ export class Trader extends Perp {
     );
     this.marketProductGroupVault = vault;
     // await this.refreshData();
+  }
+
+  async closetrgIx(){
+    if (
+      !this.marketProductGroupVault ||
+      !this.traderRiskGroup ||
+      !this.userTokenAccount
+    )
+      throw new Error(
+        "Please run init() function first to initialise the trader state!"
+      );
+    const accounts = {
+        owner: this.wallet.publicKey,
+        traderRiskGroup: this.trgKey,
+        marketProductGroup: this.traderRiskGroup.marketProductGroup,
+      };
+    return await this.program.methods
+      .closeTraderRiskGroup()
+      .accounts(accounts)
+      .signers([])
+      .instruction();
   }
 
   async depositFundsIx(amount: Fractional) {
@@ -214,6 +253,7 @@ export class Trader extends Perp {
         "Please run init() function first to Initialize the trader state!"
       );
     const accounts = {
+        buddyLinkProgram: this.ADDRESSES.BUDDYLINK_PROGRAM_ID,
         tokenProgram: TOKEN_PROGRAM_ID,
         user: this.wallet.publicKey,
         userTokenAccount: this.userTokenAccount,

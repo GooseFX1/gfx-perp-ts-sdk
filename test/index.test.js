@@ -78,9 +78,9 @@ xtest('Test initializing new Trader Account', async() => {
   const [ixs, signers] = await trader.createTraderAccountIxs()
   const tr = new Transaction()
   ixs.map(ix => tr.add(ix))
-  const res = await sendAndConfirmTransaction(connection, tr, [kp, ...signers])
+  const res = await sendAndConfirmTransaction(connection, tr, [kp, ...signers], {commitment: "processed"})
   console.log("res: ", res)
-})
+}, 30*1000)
 
 xtest('Test deposit funds', async () => {
   const perp = new Perp(connection, 'mainnet', wall)
@@ -93,9 +93,9 @@ xtest('Test deposit funds', async () => {
   }))
   const tr = new Transaction()
   tr.add(ix)
-  const res = await sendAndConfirmTransaction(connection, tr, [kp])
+  const res = await sendAndConfirmTransaction(connection, tr, [kp], {commitment: "processed"})
   console.log("res is: ", res)
-})
+}, 30*1000)
 
 xtest('Test withdraw funds', async () => {
   const perp = new Perp(connection, 'mainnet', wall)
@@ -108,9 +108,9 @@ xtest('Test withdraw funds', async () => {
   }))
   const tr = new Transaction()
   tr.add(ix)
-  const res = await sendAndConfirmTransaction(connection, tr, [kp])
+  const res = await sendAndConfirmTransaction(connection, tr, [kp], {commitment: "processed"})
   console.log("res is: ", res)
-})
+}, 30*1000)
 
 xtest("Test new Order", async () => {
   const perp = new Perp(connection, "mainnet", wall);
@@ -121,7 +121,7 @@ xtest("Test new Order", async () => {
   await trader.init();
   const ix = await trader.newOrderIx(
     new Fractional({
-      m: new BN(10000),
+      m: new BN(1000),
       exp: new BN(0),
     }),
     new Fractional({
@@ -134,9 +134,9 @@ xtest("Test new Order", async () => {
   );
   const tr = new Transaction();
   tr.add(ix);
-  const res = await sendAndConfirmTransaction(connection, tr, [kp]);
+  const res = await sendAndConfirmTransaction(connection, tr, [kp],{ commitment: "processed"});
   console.log("res is: ", res);
-});
+}, 30*1000);
 
 xtest("Test cancel Order", async () => {
   const perp = new Perp(connection, "mainnet", wall);
@@ -148,9 +148,9 @@ xtest("Test cancel Order", async () => {
   const ix = await trader.cancelOrderIx("7922816251444880503428103912726", product);
   const tr = new Transaction();
   tr.add(ix);
-  const res = await sendAndConfirmTransaction(connection, tr, [kp]);
+  const res = await sendAndConfirmTransaction(connection, tr, [kp],{ commitment: "processed"});
   console.log("res is: ", res);
-});
+}, 30*1000);
 
 xtest('Get Open orders for trader', async() => {
   const perp = new Perp(connection, 'devnet', wall)
@@ -175,11 +175,22 @@ xtest('Get Trader details', async() => {
   console.log("Active Positions: ", trader.traderPositions)
 })
 
-xtest('Get Trade history for Product', async() => {
+test('Close trader risk group account', async() => {
   const perp = new Perp(connection, 'mainnet', wall)
   await perp.init()
-  const product = new Product(perp);
-  product.initByIndex(0);
-  const response = await product.getTrades()
-  console.log("tradeHistory: ", response.data)
-})
+  const trader = new Trader(perp)
+  const traderAddresses = await trader.getAllTraderAddresses()
+  console.log(traderAddresses)
+}, 30*1000)
+
+xtest('Close trader risk group account', async() => {
+  const perp = new Perp(connection, 'mainnet', wall)
+  await perp.init()
+  const trader = new Trader(perp)
+  await trader.init()
+  const ix = await trader.closetrgIx()
+  const tr = new Transaction()
+  tr.add(ix)
+  const res = await sendAndConfirmTransaction(connection, tr, [kp], {commitment: "processed"})
+  console.log("res is: ", res)
+}, 30*1000)

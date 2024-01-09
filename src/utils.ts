@@ -50,6 +50,44 @@ export const getTrgAddress = async (
   else return null;
 };
 
+export const getTrgAllAddresses = async (
+  wallet: NodeWallet,
+  connection: Connection,
+  DEX_ID: PublicKey,
+  MPG_ID: PublicKey
+): Promise<PublicKey[]> => {
+  const response = await connection.getParsedProgramAccounts(
+    DEX_ID,
+    {
+      filters: [
+        //  {
+        //    dataSize: 63632 // number of bytes
+        //  },
+        {
+          memcmp: {
+            offset: 48,
+            /** data to match, a base-58 encoded string and limited to less than 129 bytes */
+            bytes: wallet.publicKey.toBase58(),
+          },
+        },
+        {
+          memcmp: {
+            offset: 16,
+            /** data to match, a base-58 encoded string and limited to less than 129 bytes */
+            bytes: MPG_ID.toBase58(),
+          },
+        },
+      ],
+      commitment: "processed",
+    }
+  );
+  if (response.length >= 1) {
+    const keys = response.map(item => item.pubkey);
+    return keys
+  }
+  else return [];
+};
+
 export const convertBidsAsks = (
   bids: any[],
   asks: any[],

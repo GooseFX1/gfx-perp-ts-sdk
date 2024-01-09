@@ -25,6 +25,7 @@ export const ADDRESSES = {
         }
     ],
     VAULT_MINT: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+    BUDDYLINK_PROGRAM_ID: new PublicKey("BUDDYtQp7Di1xfojiCSVDksiYLQx511DPdj2nbtG9Yu5"),
     VAULT_SEED : 'market_vault',
     FEES_SEED : 'fee_model_config_acct',
     TRADER_FEE_ACCT_SEED : 'trader_fee_acct',
@@ -51,6 +52,7 @@ export const ADDRESSES = {
         }
     ],
     VAULT_MINT: new PublicKey("3Q6dz8cLd4BW1kyuGyUaS7qhTtFP7tGS55Y7fybCUfNy"),
+    BUDDYLINK_PROGRAM_ID: new PublicKey("BUDDYtQp7Di1xfojiCSVDksiYLQx511DPdj2nbtG9Yu5"),
     VAULT_SEED : 'market_vault',
     FEES_SEED : 'fee_model_config_acct',
     TRADER_FEE_ACCT_SEED : 'trader_fee_acct',
