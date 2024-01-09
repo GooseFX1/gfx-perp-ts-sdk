@@ -202,5 +202,19 @@ The New order instruction needs the following as parameters
     const ix = await trader.cancelOrderIx("7922816251444880503428103912726", product);
   ```
 
+### Close Trader Risk Group
+
+  To close the trader risk group and claim the initial deposited SOL, Use `closetrgIx()` function.  
+
+  ```javascript
+    const perp = new Perp(connection, "mainnet", wallet);
+    await perp.init();
+    const product = new Product(perp);
+    product.initByIndex(0);
+    const trader = new Trader(perp);
+    await trader.init();
+    const ix = await trader.closetrgIx();
+  ```
+
 
 Checkout https://github.com/GooseFX1/gfx-perp-ts-sdk/blob/main/test/index.test.js for examples on the above functionalities! Happy trading!
