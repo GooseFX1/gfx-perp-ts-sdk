@@ -10,6 +10,7 @@ import * as OperationType from './OperationType'
 import * as HealthResult from './HealthResult'
 import * as HealthStatus from './HealthStatus'
 import * as ActionStatus from './ActionStatus'
+import { PublicKey } from '@solana/web3.js'
 
 export { Side }
 
@@ -317,3 +318,11 @@ export { ActionStatus }
 
 export type ActionStatusKind = ActionStatus.Approved | ActionStatus.NotApproved
 export type ActionStatusJSON = ActionStatus.ApprovedJSON | ActionStatus.NotApprovedJSON
+export interface IDepositFundsAccounts {
+  tokenProgram?: PublicKey
+  user?: PublicKey
+  userTokenAccount: PublicKey
+  traderRiskGroup: PublicKey
+  marketProductGroup: PublicKey
+  marketProductGroupVault: PublicKey
+}

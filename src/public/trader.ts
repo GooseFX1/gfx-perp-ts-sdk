@@ -1,6 +1,6 @@
 import { Keypair, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { TraderRiskGroup } from "../layout";
-import { Fractional } from "../types";
+import { Fractional, IDepositFundsAccounts } from "../types";
 import {
   TraderPosition,
   displayFractional,
@@ -205,10 +205,10 @@ export class Trader extends Perp {
         "Please run init() function first to initialise the trader state!"
       );
     const accounts = {
-        owner: this.wallet.publicKey,
-        traderRiskGroup: this.trgKey,
-        marketProductGroup: this.traderRiskGroup.marketProductGroup,
-      };
+      owner: this.wallet.publicKey,
+      traderRiskGroup: this.trgKey,
+      marketProductGroup: this.traderRiskGroup.marketProductGroup,
+    };
     return await this.program.methods
       .closeTraderRiskGroup()
       .accounts(accounts)
@@ -216,23 +216,28 @@ export class Trader extends Perp {
       .instruction();
   }
 
-  async depositFundsIx(amount: Fractional) {
+  async depositFundsIx(amount: Fractional, depositFundsAccounts?: IDepositFundsAccounts) {
+    const userWallet = this?.wallet?.publicKey ?? depositFundsAccounts.user
+    const userTokenAccount = this?.userTokenAccount ?? depositFundsAccounts.userTokenAccount
+    const traderRiskGroup = this?.trgKey ?? depositFundsAccounts.traderRiskGroup
+    const marketProductGroup = this?.traderRiskGroup?.marketProductGroup ?? depositFundsAccounts.marketProductGroup
+    const marketProductGroupVault = this?.marketProductGroupVault ?? depositFundsAccounts.marketProductGroupVault
     if (
-      !this.marketProductGroupVault ||
-      !this.traderRiskGroup ||
-      !this.userTokenAccount
+      !marketProductGroupVault ||
+      !traderRiskGroup ||
+      !userTokenAccount
     )
       throw new Error(
-        "Please run init() function first to Initialize the trader state!"
+        "Please run init() function first to Initialize the trader state Or Send the required accounts as parameters!"
       );
     const accounts = {
-        tokenProgram: TOKEN_PROGRAM_ID,
-        user: this.wallet.publicKey,
-        userTokenAccount: this.userTokenAccount,
-        traderRiskGroup: this.trgKey,
-        marketProductGroup: this.traderRiskGroup.marketProductGroup,
-        marketProductGroupVault: this.marketProductGroupVault,
-      },
+      tokenProgram: TOKEN_PROGRAM_ID,
+      user: userWallet,
+      userTokenAccount: userTokenAccount,
+      traderRiskGroup: traderRiskGroup,
+      marketProductGroup: marketProductGroup,
+      marketProductGroupVault: marketProductGroupVault,
+    },
       params = {
         quantity: amount,
       };
@@ -253,20 +258,20 @@ export class Trader extends Perp {
         "Please run init() function first to Initialize the trader state!"
       );
     const accounts = {
-        buddyLinkProgram: this.ADDRESSES.BUDDYLINK_PROGRAM_ID,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        user: this.wallet.publicKey,
-        userTokenAccount: this.userTokenAccount,
-        traderRiskGroup: this.trgKey,
-        marketProductGroup: this.traderRiskGroup.marketProductGroup,
-        marketProductGroupVault: this.marketProductGroupVault,
-        riskEngineProgram: this.ADDRESSES.RISK_ID,
-        riskModelConfigurationAcct:
-          this.marketProductGroup.riskModelConfigurationAcct,
-        riskOutputRegister: this.marketProductGroup.riskOutputRegister,
-        traderRiskStateAcct: this.traderRiskGroup.riskStateAccount,
-        riskSigner: getRiskSigner(this.ADDRESSES.MPG_ID, this.ADDRESSES.DEX_ID),
-      },
+      buddyLinkProgram: this.ADDRESSES.BUDDYLINK_PROGRAM_ID,
+      tokenProgram: TOKEN_PROGRAM_ID,
+      user: this.wallet.publicKey,
+      userTokenAccount: this.userTokenAccount,
+      traderRiskGroup: this.trgKey,
+      marketProductGroup: this.traderRiskGroup.marketProductGroup,
+      marketProductGroupVault: this.marketProductGroupVault,
+      riskEngineProgram: this.ADDRESSES.RISK_ID,
+      riskModelConfigurationAcct:
+        this.marketProductGroup.riskModelConfigurationAcct,
+      riskOutputRegister: this.marketProductGroup.riskOutputRegister,
+      traderRiskStateAcct: this.traderRiskGroup.riskStateAccount,
+      riskSigner: getRiskSigner(this.ADDRESSES.MPG_ID, this.ADDRESSES.DEX_ID),
+    },
       params = {
         quantity: amount,
       };
