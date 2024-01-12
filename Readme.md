@@ -165,6 +165,7 @@ The New order instruction needs the following as parameters
   * Order side ('buy' or 'sell')
   * Order Type ('limit', 'market', 'immediateOrCancel', 'postOnly')
   * Product instance
+  * Call back ID: A number between 0 and 4294967295 to uniquely identiy the order in trade events
 
 ```javascript
   const perp = new Perp(connection, "mainnet", wallet);
@@ -184,7 +185,8 @@ The New order instruction needs the following as parameters
     }),
     "buy",
     "limit",
-    product
+    product,
+    1435
   );
 ```
 
