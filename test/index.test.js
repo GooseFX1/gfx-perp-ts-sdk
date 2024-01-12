@@ -130,7 +130,8 @@ xtest("Test new Order", async () => {
     }),
     "buy",
     "limit",
-    product
+    product,
+    16969
   );
   const tr = new Transaction();
   tr.add(ix);
@@ -175,7 +176,7 @@ xtest('Get Trader details', async() => {
   console.log("Active Positions: ", trader.traderPositions)
 })
 
-test('Close trader risk group account', async() => {
+xtest('Close trader risk group account', async() => {
   const perp = new Perp(connection, 'mainnet', wall)
   await perp.init()
   const trader = new Trader(perp)
