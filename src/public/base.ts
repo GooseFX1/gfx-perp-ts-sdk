@@ -41,7 +41,10 @@ export type Trade = {
   maker: string;
   price: number;
   qty: number;
-  time: number
+  time: number;
+  takerCallbackId: number;
+  makerCallbackId: number;
+  tradeId: number;
 }
 
 export class Perp {

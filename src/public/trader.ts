@@ -283,6 +283,7 @@ export class Trader extends Perp {
     side: TradeSide,
     orderType: OrderType,
     product: Product,
+    callbackId?: number,
     matchLimit?: number
   ) {
     const orderParam = {
@@ -293,6 +294,7 @@ export class Trader extends Perp {
       },
       matchLimit: new BN(matchLimit ? matchLimit : 10),
       orderType: getOrderTypeEnum(orderType),
+      callbackId: callbackId ?? 0 ,
       limitPrice: price,
     };
 

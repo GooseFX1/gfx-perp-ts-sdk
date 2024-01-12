@@ -361,17 +361,33 @@ export const getDiffEvents = (prevEvents: EventFill[], currentEvents: EventFill[
   return newEvents;
 }
 
+const getOrderId = (a: number[]): number => {
+  let num = 0
+  for (let i=0; i<a.length; i++){
+    const base = Math.pow(256, i)
+    num = num + (a[i] * base)
+  }
+  return num
+}
+
 export const filterEvent = (res: EventFill, tickSize: number): Trade => {
   const maker = new PublicKey(res.makerCallbackInfo.slice(0, 32));
   const taker = new PublicKey(res.takerCallbackInfo.slice(0, 32));
+  const makerCallbackId = getOrderId(res.makerCallbackInfo.slice(36, 40));
+  const takerCallbackId = getOrderId(res.takerCallbackInfo.slice(36, 40));
+
+  const execId = Math.floor(Math.random() * 90000) + 10000;
   const dbTrade: Trade = {
     side: res.takerSide,
     orderId: res.makerOrderId.toString(),
+    takerCallbackId: takerCallbackId,
     taker: taker.toBase58(),
+    makerCallbackId: makerCallbackId,
     maker: maker.toBase58(),
     price: res.quoteSize.mul(new BN('100')).div(res.baseSize).div(new BN('100')).toNumber() / tickSize,
     qty: res.baseSize.toNumber() / 1000000000000,
-    time: Math.floor((+new Date())/1000)
+    time: Math.floor((+new Date())/1000),
+    tradeId: execId
   }
   // dbTrade["price"] = res.quoteSize.toNumber() / (res.baseSize.toNumber() * 100)
   return dbTrade
