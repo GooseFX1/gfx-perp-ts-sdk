@@ -166,6 +166,13 @@ export class Product extends Perp {
     return id;
   }
 
+  subscribeToOrderbook(subscribeFn: any) {
+    this.subscribeToAsks(subscribeFn)
+    this.subscribeToBids(subscribeFn)
+  }
+
+  
+
   private processOrderbookSide = (accountData: AccountInfo<Buffer> | null, side: number, subscribeFn: Function) => {
     const sideData = accountData.data;
     const sideDeserialized = Slab.deserialize(sideData, 40);

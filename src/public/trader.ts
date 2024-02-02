@@ -74,6 +74,9 @@ export class Trader extends Perp {
   async createTraderAccountIxs(): Promise<
     [TransactionInstruction[], Keypair[]]
   > {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const trgAddress = await getTrgAddress(
       this.wallet,
       this.connection,
@@ -159,6 +162,9 @@ export class Trader extends Perp {
   }
 
   async getAllTraderAddresses(): Promise<PublicKey[]> {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const addresses = await getTrgAllAddresses(this.wallet,
       this.connection,
       this.ADDRESSES.DEX_ID,
@@ -167,6 +173,9 @@ export class Trader extends Perp {
   }
 
   async init() {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const trgAddress = await getTrgAddress(
       this.wallet,
       this.connection,
@@ -225,6 +234,9 @@ export class Trader extends Perp {
       throw new Error(
         "Please run init() function first to initialise the trader state!"
       );
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const accounts = {
         tokenProgram: TOKEN_PROGRAM_ID,
         user: this.wallet.publicKey,
@@ -252,6 +264,9 @@ export class Trader extends Perp {
       throw new Error(
         "Please run init() function first to initialise the trader state!"
       );
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const accounts = {
         buddyLinkProgram: this.ADDRESSES.BUDDYLINK_PROGRAM_ID,
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -286,6 +301,9 @@ export class Trader extends Perp {
     callbackId?: number,
     matchLimit?: number
   ) {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const orderParam = {
       maxBaseQty: qty,
       side: getTradeSideEnum(side),
@@ -334,6 +352,9 @@ export class Trader extends Perp {
   }
 
   async cancelOrderIx(orderId: string, product: Product) {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const orderParam = {
       orderId: new BN(orderId),
     };

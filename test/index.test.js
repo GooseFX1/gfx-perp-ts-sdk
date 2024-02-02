@@ -24,21 +24,23 @@ xtest('Test initialization', async () => {
 })
 
 xtest('Test get orderbook L2', async () => {
-  const perp = new Perp(connection, 'mainnet', wall)
+  const perp = new Perp(connection, 'mainnet')
   await perp.init()
   const product = new Product(perp)
   product.initByIndex(0)
   const orderbook = await product.getOrderbookL2()
+  console.log(orderbook)
   expect(orderbook.bids.length).toBeGreaterThanOrEqual(0)
   expect(orderbook.asks.length).toBeGreaterThanOrEqual(0)
 })
 
 xtest('Test get orderbook L3', async () => {
-  const perp = new Perp(connection, 'mainnet', wall)
+  const perp = new Perp(connection, 'mainnet')
   await perp.init()
   const product = new Product(perp)
   product.initByIndex(0)
   const orderbook = await product.getOrderbookL3()
+  console.log(orderbook)
   expect(orderbook.bids.length).toBeGreaterThanOrEqual(0)
   expect(orderbook.asks.length).toBeGreaterThanOrEqual(0)
 })
@@ -46,7 +48,7 @@ xtest('Test get orderbook L3', async () => {
 function sleep(n) { return new Promise(resolve=>setTimeout(resolve,n)); }
 
 xtest('Test orderbook bids subscription', async () => {
-  const perp = new Perp(connection, 'mainnet', wall)
+  const perp = new Perp(connection, 'mainnet')
   await perp.init()
   const product = new Product(perp)
   product.initByIndex(0)
@@ -58,8 +60,22 @@ xtest('Test orderbook bids subscription', async () => {
   connection.removeAccountChangeListener(subscribeId)
 }, 100*1000)
 
+xtest('Test orderbook subscription', async () => {
+  const perp = new Perp(connection, 'mainnet')
+  await perp.init()
+  const product = new Product(perp)
+  product.initByIndex(0)
+  async function handleAccountChange(e){
+    console.log("event notification e: ", e)
+  }
+  const subscribeId = product.subscribeToOrderbook((e) => handleAccountChange(e))
+  await sleep(100*1000)
+  connection.removeAccountChangeListener(subscribeId)
+}, 100*1000)
+
+
 xtest('Test trade subscription', async () => {
-  const perp = new Perp(connection, 'mainnet', wall)
+  const perp = new Perp(connection, 'mainnet')
   await perp.init()
   const product = new Product(perp)
   product.initByIndex(0)
@@ -83,8 +99,12 @@ xtest('Test initializing new Trader Account', async() => {
 }, 30*1000)
 
 xtest('Test deposit funds', async () => {
-  const perp = new Perp(connection, 'mainnet', wall)
+  const perp = new Perp(connection, 'mainnet')
   await perp.init()
+  // This is one way to set the wallet in the perp class. 
+  // This has the same effect as passing the wallet as the third argument
+  // in the Perp class constructor.
+  perp.setWallet(wall)
   const trader = new Trader(perp)
   await trader.init()
   const ix = await trader.depositFundsIx(new Fractional({

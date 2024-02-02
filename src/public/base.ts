@@ -59,14 +59,15 @@ export class Perp {
   constructor(
     connection: Connection,
     networkType: NetworkType,
-    wallet: Wallet,
+    wallet?: Wallet,
     mpg?: MarketProductGroup,
     mpgBytes?: Buffer
   ) {
-    this.wallet = wallet;
+    if (wallet) this.wallet = wallet;
+    const providerWallet = new Wallet(Keypair.generate())
     const provider = new AnchorProvider(
       connection,
-      this.wallet,
+      providerWallet,
       AnchorProvider.defaultOptions()
     );
     this.program = new Program(
@@ -90,5 +91,9 @@ export class Perp {
     const mpg = await MarketProductGroup.fetch(this.connection, mpgId);
     this.marketProductGroup = mpg![0];
     this.mpgBytes = mpg[1].data;
+  }
+
+  setWallet(wallet: Wallet) {
+    this.wallet = wallet;
   }
 }

@@ -21,7 +21,7 @@ export const ADDRESSES = {
             ASKS: new PublicKey('FPTSdA4vPQRz4KyjKi5YYdNNq9EbKDSgKMNyadrbVhG8'),
             EVENT_QUEUE: new PublicKey('2Kv94KZTX8yePkdNZT1zXpzDaTpLYLpeiv7Gp8vLA6kL'),
             tick_size: 100,
-            decimals: 5
+            decimals: 7
         }
     ],
     VAULT_MINT: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
@@ -59,6 +59,7 @@ export const ADDRESSES = {
   }
 };
 
-export const API_BASE = "http://localhost:4000"
+export const API_BASE = "https://api-services.goosefx.io"
 export const TRADE_HISTORY = "/perps-apis/getTradeHistory"
+export const FUNDING_RATE_HISTORY = "/perps-apis/getFundingRateHistory"
 
