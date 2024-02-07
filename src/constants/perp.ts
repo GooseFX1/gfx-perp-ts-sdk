@@ -42,16 +42,16 @@ export const ADDRESSES = {
     PRODUCTS: [
         {
             name: 'SOL-PERP',
-            PRODUCT_ID: new PublicKey('3VvYzfCvFVZgmDr4CyMPAqigccqLiXk3XCXMUzfk8biV'),
-            ORDERBOOK_ID: new PublicKey('7mV1Vn6YjK2GNbMCYo4vTVd5NuKxGYdgTxVPZhx9xvZz'),
-            BIDS: new PublicKey('ATM4v6kum8vjMG7TXxepo2nBHunesJQxagQWoyKeWdrR'),
-            ASKS: new PublicKey('8YVrzgBYqeK5sgj2TBGJaA3pLR7sZBHfGVKuVK9mANrr'),
-            EVENT_QUEUE: new PublicKey('5T5Y9E8eyP3eddFbwgt4BSEwgaZY7B5pBQ1TqjQ4q9r6'),
+            PRODUCT_ID: new PublicKey('DUCFhVbomXJHZFJPdgYEQVtBGfADon9qDMTE2hbnzi26'),
+            ORDERBOOK_ID: new PublicKey('7xiz1kHfapP65m5dYjgt2uVV7RqBFcFa3kxvqrRTGjz3'),
+            BIDS: new PublicKey('DP5fvyaV8bDGTTntrqFjZ2Z1xek21z16x8KfhBsrCTBb'),
+            ASKS: new PublicKey('DJkXtHhwzRiwpz3oDu3SJbj3VPHTHhiLjqqBQM5FtSBj'),
+            EVENT_QUEUE: new PublicKey('Aj7T65BVGVHSfcKv3A52ZG8y6FQiEMUSipgyCHbosAZN'),
             tick_size: 100,
             decimals: 5
         }
     ],
-    VAULT_MINT: new PublicKey("3Q6dz8cLd4BW1kyuGyUaS7qhTtFP7tGS55Y7fybCUfNy"),
+    VAULT_MINT: new PublicKey("Bg2f3jstf2Co4Hkrxsn7evzvRwLbWYmuzaLUPGnjCwAA"),
     BUDDYLINK_PROGRAM_ID: new PublicKey("BUDDYtQp7Di1xfojiCSVDksiYLQx511DPdj2nbtG9Yu5"),
     VAULT_SEED : 'market_vault',
     FEES_SEED : 'fee_model_config_acct',
