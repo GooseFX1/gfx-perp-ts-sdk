@@ -31,7 +31,7 @@ export const ADDRESSES = {
     TRADER_FEE_ACCT_SEED : 'trader_fee_acct',
   },
   DEVNET: {
-    MPG_ID: new PublicKey("6jT2d44kD7WLtaFBHYWhzQ18MtP9dQD5ewWf9zg5ys4P"),
+    MPG_ID: new PublicKey("GSiRLUGwJsPn3RVozE6auGyTMZ8cg9c7HnAtTKzeb4Z8"),
     DEX_ID: new PublicKey("BjpU1ACJY2bFj7aVTiMJLhM7H1ePxwkfDhjyY9dW9dbo"),
     INSTRUMENTS_ID: new PublicKey("VXD2JfYWTiLuQLZA4jXN58cCxQe1XhaquNHAA1FEDWW") ,
     FEES_ID : new PublicKey('2o2VABUDicRrLSzb5U4VvBrnVbtnDdCMowrMg9x7RGnD'),
