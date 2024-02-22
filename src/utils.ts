@@ -50,6 +50,17 @@ export const getTrgAddress = async (
   else return null;
 };
 
+export const getEventEmitter = (
+  DEX_ID: PublicKey,
+  MPG_ID: PublicKey
+) => {
+  const eventEmitter = PublicKey.findProgramAddressSync(
+    [Buffer.from('event-emitter'), MPG_ID.toBuffer()],
+    DEX_ID
+  )[0]
+  return eventEmitter
+}
+
 export const getTrgAllAddresses = async (
   wallet: NodeWallet,
   connection: Connection,

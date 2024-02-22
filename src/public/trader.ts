@@ -4,6 +4,7 @@ import { Fractional, IDepositFundsAccounts } from "../types";
 import {
   TraderPosition,
   displayFractional,
+  getEventEmitter,
   getFeeModelConfigAcct,
   getMpgVault,
   getOrderTypeEnum,
@@ -36,6 +37,7 @@ export class Trader extends Perp {
   traderPositions: TraderPosition[];
   totalTradedVolume: string;
   referralKey: PublicKey | null
+  eventEmitter: PublicKey
 
   constructor(perp: Perp, referralKey?: PublicKey) {
     super(
@@ -150,7 +152,8 @@ export class Trader extends Perp {
           traderFeeStateAcct: traderFeeAcct,
           riskEngineProgram: this.ADDRESSES.RISK_ID,
           systemProgram: SystemProgram.programId,
-          referralKey: referralKey
+          referralKey: referralKey,
+          eventEmitter: this.eventEmitter
         })
         .signers([])
         .instruction()
@@ -192,6 +195,7 @@ export class Trader extends Perp {
       this.ADDRESSES.DEX_ID
     );
     this.marketProductGroupVault = vault;
+    this.eventEmitter = getEventEmitter(this.ADDRESSES.DEX_ID, this.ADDRESSES.MPG_ID)
     // await this.refreshData();
   }
 
@@ -237,6 +241,7 @@ export class Trader extends Perp {
       traderRiskGroup: traderRiskGroup,
       marketProductGroup: marketProductGroup,
       marketProductGroupVault: marketProductGroupVault,
+      eventEmitter: this.eventEmitter
     },
       params = {
         quantity: amount,
@@ -271,6 +276,7 @@ export class Trader extends Perp {
       riskOutputRegister: this.marketProductGroup.riskOutputRegister,
       traderRiskStateAcct: this.traderRiskGroup.riskStateAccount,
       riskSigner: getRiskSigner(this.ADDRESSES.MPG_ID, this.ADDRESSES.DEX_ID),
+      eventEmitter: this.eventEmitter
     },
       params = {
         quantity: amount,
@@ -329,6 +335,7 @@ export class Trader extends Perp {
         this.ADDRESSES.MPG_ID,
         this.ADDRESSES.DEX_ID
       ),
+      eventEmitter: this.eventEmitter
     };
 
     return await this.program.methods
@@ -364,6 +371,7 @@ export class Trader extends Perp {
         this.ADDRESSES.MPG_ID,
         this.ADDRESSES.DEX_ID
       ),
+      eventEmitter: this.eventEmitter
     };
 
     return await this.program.methods

@@ -48,7 +48,7 @@ export const ADDRESSES = {
             ASKS: new PublicKey('DJkXtHhwzRiwpz3oDu3SJbj3VPHTHhiLjqqBQM5FtSBj'),
             EVENT_QUEUE: new PublicKey('Aj7T65BVGVHSfcKv3A52ZG8y6FQiEMUSipgyCHbosAZN'),
             tick_size: 100,
-            decimals: 5
+            decimals: 7
         }
     ],
     VAULT_MINT: new PublicKey("Bg2f3jstf2Co4Hkrxsn7evzvRwLbWYmuzaLUPGnjCwAA"),

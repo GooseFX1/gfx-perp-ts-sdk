@@ -377,6 +377,11 @@
           "name": "referralKey",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "eventEmitter",
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": []
@@ -482,6 +487,11 @@
         {
           "name": "riskAndFeeSigner",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "eventEmitter",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -644,6 +654,11 @@
           "name": "riskSigner",
           "isMut": false,
           "isSigner": false
+        },
+        {
+          "name": "eventEmitter",
+          "isMut": true,
+          "isSigner": false
         }
       ],
       "args": [
@@ -685,6 +700,11 @@
         },
         {
           "name": "marketProductGroupVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "eventEmitter",
           "isMut": true,
           "isSigner": false
         }
@@ -759,6 +779,11 @@
         {
           "name": "riskSigner",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "eventEmitter",
+          "isMut": true,
           "isSigner": false
         }
       ],
