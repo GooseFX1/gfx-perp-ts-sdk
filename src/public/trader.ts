@@ -53,6 +53,7 @@ export class Trader extends Perp {
     else{
       this.referralKey = PublicKey.default
     }
+    this.eventEmitter = getEventEmitter(this.ADDRESSES.DEX_ID, this.ADDRESSES.MPG_ID)
   }
 
   async getOpenOrders(product: Product) {
@@ -195,7 +196,7 @@ export class Trader extends Perp {
       this.ADDRESSES.DEX_ID
     );
     this.marketProductGroupVault = vault;
-    this.eventEmitter = getEventEmitter(this.ADDRESSES.DEX_ID, this.ADDRESSES.MPG_ID)
+    
     // await this.refreshData();
   }
 
