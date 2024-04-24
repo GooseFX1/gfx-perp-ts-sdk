@@ -53,6 +53,7 @@ export class Perp {
   connection: Connection;
   program: Program;
   wallet: Wallet;
+  wallet_public_key: PublicKey;
   networkType: NetworkType;
   ADDRESSES: ConstantIDs;
 
@@ -61,9 +62,21 @@ export class Perp {
     networkType: NetworkType,
     wallet?: Wallet,
     mpg?: MarketProductGroup,
-    mpgBytes?: Buffer
+    mpgBytes?: Buffer,
+    wallet_address?: PublicKey
   ) {
+    if (!wallet && !wallet_address) {
+        throw new Error(
+            "Either wallet or wallet_address must be provided"
+        );
+    }
+    if (wallet && wallet_address) {
+        throw new Error(
+            "Either wallet or wallet_address must be provided but not both"
+        );
+    }
     if (wallet) this.wallet = wallet;
+    this.wallet_public_key = wallet ? wallet.publicKey : wallet_address;
     const providerWallet = new Wallet(Keypair.generate())
     const provider = new AnchorProvider(
       connection,

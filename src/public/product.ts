@@ -23,7 +23,9 @@ export class Product extends Perp {
       perp.connection,
       perp.networkType,
       perp.wallet,
-      perp.marketProductGroup
+      perp.marketProductGroup,
+      perp.mpgBytes,
+      perp.wallet_public_key
     );
   }
 

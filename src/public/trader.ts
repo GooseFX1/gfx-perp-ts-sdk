@@ -43,7 +43,8 @@ export class Trader extends Perp {
       perp.networkType,
       perp.wallet,
       perp.marketProductGroup,
-      perp.mpgBytes
+      perp.mpgBytes,
+      perp.wallet_public_key
     );
     if (referralKey){
       this.referralKey = referralKey
@@ -78,7 +79,7 @@ export class Trader extends Perp {
       throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
     }
     const trgAddress = await getTrgAddress(
-      this.wallet,
+      this.wallet.publicKey,
       this.connection,
       this.ADDRESSES.DEX_ID,
       this.ADDRESSES.MPG_ID
@@ -162,10 +163,7 @@ export class Trader extends Perp {
   }
 
   async getAllTraderAddresses(): Promise<PublicKey[]> {
-    if (!this.wallet) {
-      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
-    }
-    const addresses = await getTrgAllAddresses(this.wallet,
+    const addresses = await getTrgAllAddresses(this.wallet_public_key,
       this.connection,
       this.ADDRESSES.DEX_ID,
       this.ADDRESSES.MPG_ID)
@@ -173,11 +171,8 @@ export class Trader extends Perp {
   }
 
   async init() {
-    if (!this.wallet) {
-      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
-    }
     const trgAddress = await getTrgAddress(
-      this.wallet,
+      this.wallet_public_key,
       this.connection,
       this.ADDRESSES.DEX_ID,
       this.ADDRESSES.MPG_ID
@@ -191,7 +186,7 @@ export class Trader extends Perp {
     this.trgBytes = res[1].data;
     this.traderRiskGroup = res![0];
     const userTokenAccount = await getUserAta(
-      this.wallet.publicKey,
+      this.wallet_public_key,
       this.ADDRESSES.VAULT_MINT
     );
     this.userTokenAccount = userTokenAccount;
@@ -213,6 +208,9 @@ export class Trader extends Perp {
       throw new Error(
         "Please run init() function first to initialise the trader state!"
       );
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
+    }
     const accounts = {
         owner: this.wallet.publicKey,
         traderRiskGroup: this.trgKey,
