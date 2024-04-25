@@ -16,7 +16,7 @@ export type TraderPosition = {
 }
 
 export const getTrgAddress = async (
-  wallet: NodeWallet,
+  walletKey: PublicKey,
   connection: Connection,
   DEX_ID: PublicKey,
   MPG_ID: PublicKey
@@ -32,7 +32,7 @@ export const getTrgAddress = async (
           memcmp: {
             offset: 48,
             /** data to match, a base-58 encoded string and limited to less than 129 bytes */
-            bytes: wallet.publicKey.toBase58(),
+            bytes: walletKey.toBase58(),
           },
         },
         {
@@ -51,7 +51,7 @@ export const getTrgAddress = async (
 };
 
 export const getTrgAllAddresses = async (
-  wallet: NodeWallet,
+  walletKey: PublicKey,
   connection: Connection,
   DEX_ID: PublicKey,
   MPG_ID: PublicKey
@@ -67,7 +67,7 @@ export const getTrgAllAddresses = async (
           memcmp: {
             offset: 48,
             /** data to match, a base-58 encoded string and limited to less than 129 bytes */
-            bytes: wallet.publicKey.toBase58(),
+            bytes: walletKey.toBase58(),
           },
         },
         {

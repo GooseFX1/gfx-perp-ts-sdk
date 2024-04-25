@@ -53,27 +53,42 @@ export class Perp {
   connection: Connection;
   program: Program;
   wallet: Wallet;
+  wallet_public_key: PublicKey;
   networkType: NetworkType;
   ADDRESSES: ConstantIDs;
 
   constructor(
     connection: Connection,
     networkType: NetworkType,
-    wallet: Wallet,
+    wallet?: Wallet,
     mpg?: MarketProductGroup,
-    mpgBytes?: Buffer
+    mpgBytes?: Buffer,
+    wallet_address?: PublicKey
   ) {
-    this.wallet = wallet;
-    const provider = new AnchorProvider(
-      connection,
-      this.wallet,
-      AnchorProvider.defaultOptions()
-    );
-    this.program = new Program(
-      dexIdl as any,
-      dexIdl.metadata.address,
-      provider
-    );
+    if (!wallet && !wallet_address) {
+        throw new Error(
+            "Either wallet or wallet_address must be provided"
+        );
+    }
+    if (wallet && wallet_address) {
+        throw new Error(
+            "Either wallet or wallet_address must be provided but not both"
+        );
+    }
+    this.wallet_public_key = wallet ? wallet.publicKey : wallet_address;
+    if (wallet) {
+        this.wallet = wallet;
+        const provider = new AnchorProvider(
+            connection,
+            this.wallet,
+            AnchorProvider.defaultOptions()
+        );
+        this.program = new Program(
+            dexIdl as any,
+            dexIdl.metadata.address,
+            provider
+        );
+    }
     this.connection = connection;
     this.networkType = networkType;
     if (this.networkType === "mainnet") {
