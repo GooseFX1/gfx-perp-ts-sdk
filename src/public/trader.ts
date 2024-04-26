@@ -43,7 +43,8 @@ export class Trader extends Perp {
       perp.networkType,
       perp.wallet,
       perp.marketProductGroup,
-      perp.mpgBytes
+      perp.mpgBytes,
+      perp.wallet_public_key
     );
     if (referralKey){
       this.referralKey = referralKey
@@ -74,8 +75,11 @@ export class Trader extends Perp {
   async createTraderAccountIxs(): Promise<
     [TransactionInstruction[], Keypair[]]
   > {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor")
+    }
     const trgAddress = await getTrgAddress(
-      this.wallet,
+      this.wallet.publicKey,
       this.connection,
       this.ADDRESSES.DEX_ID,
       this.ADDRESSES.MPG_ID
@@ -159,7 +163,7 @@ export class Trader extends Perp {
   }
 
   async getAllTraderAddresses(): Promise<PublicKey[]> {
-    const addresses = await getTrgAllAddresses(this.wallet,
+    const addresses = await getTrgAllAddresses(this.wallet_public_key,
       this.connection,
       this.ADDRESSES.DEX_ID,
       this.ADDRESSES.MPG_ID)
@@ -168,7 +172,7 @@ export class Trader extends Perp {
 
   async init() {
     const trgAddress = await getTrgAddress(
-      this.wallet,
+      this.wallet_public_key,
       this.connection,
       this.ADDRESSES.DEX_ID,
       this.ADDRESSES.MPG_ID
@@ -196,6 +200,9 @@ export class Trader extends Perp {
   }
 
   async closetrgIx(){
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor")
+    }
     if (
       !this.marketProductGroupVault ||
       !this.traderRiskGroup ||
@@ -217,6 +224,9 @@ export class Trader extends Perp {
   }
 
   async depositFundsIx(amount: Fractional, depositFundsAccounts?: IDepositFundsAccounts) {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor")
+    }
     const userWallet = this?.wallet?.publicKey ?? depositFundsAccounts.user
     const userTokenAccount = this?.userTokenAccount ?? depositFundsAccounts.userTokenAccount
     const traderRiskGroup = this?.trgKey ?? depositFundsAccounts.traderRiskGroup
@@ -249,6 +259,9 @@ export class Trader extends Perp {
   }
 
   async withdrawFundsIx(amount: Fractional) {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor")
+    }
     if (
       !this.marketProductGroupVault ||
       !this.traderRiskGroup ||
@@ -291,6 +304,9 @@ export class Trader extends Perp {
     callbackId?: number,
     matchLimit?: number
   ) {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor")
+    }
     const orderParam = {
       maxBaseQty: qty,
       side: getTradeSideEnum(side),
@@ -339,6 +355,9 @@ export class Trader extends Perp {
   }
 
   async cancelOrderIx(orderId: string, product: Product) {
+    if (!this.wallet) {
+      throw new Error("Please pass in your wallet in the Perp class constructor")
+    }
     const orderParam = {
       orderId: new BN(orderId),
     };
