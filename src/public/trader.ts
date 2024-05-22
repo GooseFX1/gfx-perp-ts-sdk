@@ -283,7 +283,7 @@ export class Trader extends Perp {
         quantity: amount,
       };
 
-    if (this.traderRiskGroup.referral.toBase58() === PublicKey.default.toBase58()){
+    if (this.traderRiskGroup.referral === PublicKey.default){
       return await this.program.methods
         .withdrawFunds(params)
         .accounts(accounts)
