@@ -1,4 +1,4 @@
-import { Keypair, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
+import { AccountMeta, Keypair, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { TraderRiskGroup } from "../layout";
 import { Fractional, IDepositFundsAccounts } from "../types";
 import {
@@ -254,7 +254,7 @@ export class Trader extends Perp {
       .instruction();
   }
 
-  async withdrawFundsIx(amount: Fractional) {
+  async withdrawFundsIx(amount: Fractional, remainingAccounts: AccountMeta[]) {
     if (
       !this.marketProductGroupVault ||
       !this.traderRiskGroup ||
@@ -282,11 +282,22 @@ export class Trader extends Perp {
       params = {
         quantity: amount,
       };
-    return await this.program.methods
-      .withdrawFunds(params)
-      .accounts(accounts)
-      .signers([])
-      .instruction();
+
+    if (this.traderRiskGroup.referral === PublicKey.default){
+      return await this.program.methods
+        .withdrawFunds(params)
+        .accounts(accounts)
+        .signers([])
+        .instruction();
+    } else {
+      return await this.program.methods
+        .withdrawFunds(params)
+        .accounts(accounts)
+        .remainingAccounts(remainingAccounts)
+        .signers([])
+        .instruction();
+    }
+
   }
 
   async newOrderIx(
