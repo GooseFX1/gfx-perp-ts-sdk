@@ -1,9 +1,10 @@
 import { Keypair, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 import { TraderRiskGroup } from "../layout";
-import { Fractional } from "../types";
+import { Fractional, IDepositFundsAccounts } from "../types";
 import {
   TraderPosition,
   displayFractional,
+  getEventEmitter,
   getFeeModelConfigAcct,
   getMpgVault,
   getOrderTypeEnum,
@@ -36,6 +37,7 @@ export class Trader extends Perp {
   traderPositions: TraderPosition[];
   totalTradedVolume: string;
   referralKey: PublicKey | null
+  eventEmitter: PublicKey
 
   constructor(perp: Perp, referralKey?: PublicKey) {
     super(
@@ -51,6 +53,7 @@ export class Trader extends Perp {
     else{
       this.referralKey = PublicKey.default
     }
+    this.eventEmitter = getEventEmitter(this.ADDRESSES.DEX_ID, this.ADDRESSES.MPG_ID)
   }
 
   async getOpenOrders(product: Product) {
@@ -153,7 +156,8 @@ export class Trader extends Perp {
           traderFeeStateAcct: traderFeeAcct,
           riskEngineProgram: this.ADDRESSES.RISK_ID,
           systemProgram: SystemProgram.programId,
-          referralKey: referralKey
+          referralKey: referralKey,
+          eventEmitter: this.eventEmitter
         })
         .signers([])
         .instruction()
@@ -225,26 +229,29 @@ export class Trader extends Perp {
       .instruction();
   }
 
-  async depositFundsIx(amount: Fractional) {
+  async depositFundsIx(amount: Fractional, depositFundsAccounts?: IDepositFundsAccounts) {
+    const userWallet = this?.wallet?.publicKey ?? depositFundsAccounts.user
+    const userTokenAccount = this?.userTokenAccount ?? depositFundsAccounts.userTokenAccount
+    const traderRiskGroup = this?.trgKey ?? depositFundsAccounts.traderRiskGroup
+    const marketProductGroup = this?.traderRiskGroup?.marketProductGroup ?? depositFundsAccounts.marketProductGroup
+    const marketProductGroupVault = this?.marketProductGroupVault ?? depositFundsAccounts.marketProductGroupVault
     if (
-      !this.marketProductGroupVault ||
-      !this.traderRiskGroup ||
-      !this.userTokenAccount
+      !marketProductGroupVault ||
+      !traderRiskGroup ||
+      !userTokenAccount
     )
       throw new Error(
-        "Please run init() function first to initialise the trader state!"
+        "Please run init() function first to Initialize the trader state Or Send the required accounts as parameters!"
       );
-    if (!this.wallet) {
-      throw new Error("Please pass in your wallet in the Perp class constructor, or run the setWallet function in the Perp class to update your keypair")
-    }
     const accounts = {
-        tokenProgram: TOKEN_PROGRAM_ID,
-        user: this.wallet.publicKey,
-        userTokenAccount: this.userTokenAccount,
-        traderRiskGroup: this.trgKey,
-        marketProductGroup: this.traderRiskGroup.marketProductGroup,
-        marketProductGroupVault: this.marketProductGroupVault,
-      },
+      tokenProgram: TOKEN_PROGRAM_ID,
+      user: userWallet,
+      userTokenAccount: userTokenAccount,
+      traderRiskGroup: traderRiskGroup,
+      marketProductGroup: marketProductGroup,
+      marketProductGroupVault: marketProductGroupVault,
+      eventEmitter: this.eventEmitter
+    },
       params = {
         quantity: amount,
       };
@@ -281,6 +288,7 @@ export class Trader extends Perp {
         riskOutputRegister: this.marketProductGroup.riskOutputRegister,
         traderRiskStateAcct: this.traderRiskGroup.riskStateAccount,
         riskSigner: getRiskSigner(this.ADDRESSES.MPG_ID, this.ADDRESSES.DEX_ID),
+        eventEmitter: this.eventEmitter
       },
       params = {
         quantity: amount,
@@ -342,6 +350,7 @@ export class Trader extends Perp {
         this.ADDRESSES.MPG_ID,
         this.ADDRESSES.DEX_ID
       ),
+      eventEmitter: this.eventEmitter
     };
 
     return await this.program.methods
@@ -380,6 +389,7 @@ export class Trader extends Perp {
         this.ADDRESSES.MPG_ID,
         this.ADDRESSES.DEX_ID
       ),
+      eventEmitter: this.eventEmitter
     };
 
     return await this.program.methods
