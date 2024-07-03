@@ -3,16 +3,16 @@
   "version": "1.2.1",
   "description": "SDK for interacting with GooseFX Perpetual futures trading platform",
   "files": [
-    "dist/*"
+    "./*"
   ],
-  "module": "dist/index.esm.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "module": "index.esm.js",
+  "main": "index.js",
+  "types": "index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./index.esm.js",
+      "require": "./index.js",
+      "types": "./index.d.ts"
     }
   },
   "scripts": {
