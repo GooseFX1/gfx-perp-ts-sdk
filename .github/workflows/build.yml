@@ -27,6 +27,9 @@ jobs:
       - name: Build the project
         run: yarn build
 
+      - name: Copy package.json
+        run: cp ./package.json ./dist
+
       - name: Archive dist folder
         run: tar -czvf gfx-perp-sdk.tar.gz dist
 
