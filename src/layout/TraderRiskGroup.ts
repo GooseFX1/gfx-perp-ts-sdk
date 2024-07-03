@@ -23,6 +23,9 @@ export interface TraderRiskGroupFields {
   clientOrderId: BN;
   openOrders: types.OpenOrdersFields;
   tradeHistory: Array<types.TradeHistoryFields>;
+  fundingBalance: types.FractionalFields;
+  referral: PublicKey;
+  pendingRewardBalance: types.FractionalFields;
   avgPosition: Array<types.AveragePositionFields>;
   totalTradedVolume: types.FractionalFields;
 }
@@ -46,6 +49,9 @@ export interface TraderRiskGroupJSON {
   clientOrderId: string;
   openOrders: types.OpenOrdersJSON;
   tradeHistory: Array<types.TradeHistoryJSON>;
+  fundingBalance: types.FractionalJSON;
+  referral: string;
+  pendingRewardBalance: types.FractionalJSON;
   avgPosition: Array<types.AveragePositionJSON>;
   totalTradedVolume: types.FractionalJSON;
 }
@@ -69,6 +75,9 @@ export class TraderRiskGroup {
   readonly clientOrderId: BN;
   readonly openOrders: types.OpenOrders;
   readonly tradeHistory: Array<types.TradeHistory>;
+  readonly fundingBalance: types.Fractional;
+  readonly referral: PublicKey;
+  readonly pendingRewardBalance: types.Fractional;
   readonly avgPosition: Array<types.AveragePosition>;
   readonly totalTradedVolume: types.Fractional;
 
@@ -95,6 +104,9 @@ export class TraderRiskGroup {
     borsh.u128("clientOrderId"),
     types.OpenOrders.layout("openOrders"),
     borsh.array(types.TradeHistory.layout(), 16, "tradeHistory"),
+    types.Fractional.layout("fundingBalance"),
+    borsh.publicKey("referral"),
+    types.Fractional.layout("pendingRewardBalance"),
     borsh.array(types.AveragePosition.layout(), 16, "avgPosition"),
     types.Fractional.layout("totalTradedVolume"),
   ]);
@@ -200,6 +212,9 @@ export class TraderRiskGroup {
           item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
         ) => types.TradeHistory.fromDecoded(item)
       ),
+      fundingBalance: types.Fractional.fromDecoded(dec.fundingBalance),
+      referral: dec.referral,
+      pendingRewardBalance: types.Fractional.fromDecoded(dec.pendingRewardBalance),
       avgPosition: dec.avgPosition.map(
         (
           item: any /* eslint-disable-line @typescript-eslint/no-explicit-any */
@@ -229,6 +244,9 @@ export class TraderRiskGroup {
       clientOrderId: this.clientOrderId.toString(),
       openOrders: this.openOrders.toJSON(),
       tradeHistory: this.tradeHistory.map((item) => item.toJSON()),
+      fundingBalance: this.fundingBalance.toJSON(),
+      referral: this.referral.toString(),
+      pendingRewardBalance: this.pendingRewardBalance.toJSON(),
       avgPosition: this.avgPosition.map((item) => item.toJSON()),
       totalTradedVolume: this.totalTradedVolume.toJSON(),
     };
@@ -258,6 +276,9 @@ export class TraderRiskGroup {
       tradeHistory: obj.tradeHistory.map((item) =>
         types.TradeHistory.fromJSON(item)
       ),
+      fundingBalance: types.Fractional.fromJSON(obj.fundingBalance),
+      referral: new PublicKey(obj.referral),
+      pendingRewardBalance: types.Fractional.fromJSON(obj.pendingRewardBalance),
       avgPosition: obj.avgPosition.map((item) =>
         types.AveragePosition.fromJSON(item)
       ),
